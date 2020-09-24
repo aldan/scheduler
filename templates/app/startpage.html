@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Scheduler</title>
+</head>
+<body>
+<div>Hi</div>
+<form action="{% url 'startpage' %}" method="post">
+    {% csrf_token %}
+    <input type="submit" name="submit" value="Go to schedule maker">
+</form>
+</body>
+</html>
