@@ -1,0 +1,38 @@
+{% extends 'app/app.html' %}
+{% load static %}
+
+{% block head_script %}
+    <script type="text/javascript">
+        var data = {{ data|safe }},
+            semester_name = '{{ name }}';
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="sidebar">
+            <div class="textbox">
+                <div class="text text-s">{{ name }}</div>
+            </div>
+        </div>
+        <div id="resize-handle"></div>
+        <div class="content">
+            <div class="timetable">
+                <table>
+                    <tr>
+                        <th>Monday</th>
+                        <th>Tuesday</th>
+                        <th>Wednesday</th>
+                        <th>Thursday</th>
+                        <th>Friday</th>
+                        <th>Saturday</th>
+                        <th>Sunday</th>
+                    </tr>
+                    <tr>
+
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

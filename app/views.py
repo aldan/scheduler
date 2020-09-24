@@ -1,6 +1,8 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from .models import Semester
+from django.utils.safestring import SafeString
 
 
 def startpage(req):
@@ -19,4 +21,14 @@ def app(req):
     if not req.COOKIES.get('isStarted'):
         return HttpResponseRedirect(reverse(startpage))
 
-    return HttpResponse("App")
+    semester = Semester.objects.last()
+    semester_name = getattr(semester, 'semester_name')
+    semester_data = getattr(semester, 'semester_data')
+
+    context = {
+        'page_title': 'Scheduler',
+        'name': semester_name,
+        'data': SafeString(semester_data),
+    }
+
+    return render(req, 'app/scheduler.html', context)

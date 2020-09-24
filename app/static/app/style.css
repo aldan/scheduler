@@ -1,0 +1,59 @@
+* {
+    box-sizing: border-box;
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    background: #eee;
+    font-family: 'Work Sans', sans-serif;
+}
+
+.container {
+    display: flex;
+    height: 100%;
+}
+
+.sidebar {
+    flex: 1 0 300px;
+    background: #aaa;
+    overflow: auto;
+}
+
+#resize-handle {
+    flex: 0 0 15px;
+    right: 0;
+    background: #555;
+}
+
+.content {
+    flex: 9 0 auto;
+    background: #ccc;
+}
+
+.text {
+    color: #111;
+
+}
+
+.text-s {
+
+}
+
+.text-l {
+
+}
+
+.timetable {
+    width: 100%;
+}
+
+.timetable table {
+    width: 100%;
+}
