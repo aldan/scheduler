@@ -11,7 +11,7 @@ body {
     padding: 0;
     height: 100%;
     width: 100%;
-    background: #eee;
+    background: #fff;
     font-family: 'Work Sans', sans-serif;
 }
 
@@ -23,12 +23,12 @@ body {
 #resize-handle {
     flex: 0 0 15px;
     right: 0;
-    background: #555;
+    background: #aaa;
 }
 
 .content {
     flex: 9 0 auto;
-    background: #ccc;
+    background: #fff;
 }
 
 .text {
@@ -55,7 +55,7 @@ body {
 .sidebar {
     display: flex;
     flex: 1 0 300px;
-    background: #aaa;
+    background: #eee;
     overflow: auto;
     flex-direction: column;
     justify-content: flex-start;
@@ -71,5 +71,7 @@ body {
 }
 
 #filtered-course-list {
-
+    position: absolute;
+    z-index: 2;
+    text-align: left;
 }

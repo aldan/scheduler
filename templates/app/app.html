@@ -4,11 +4,16 @@
 <head>
     <title>{% block title %}{{ page_title }}{% endblock %}</title>
     <link rel="stylesheet" type="text/css" href="{% static 'app/style.css' %}">
+    {# Work Sans font #}
     <link href="https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,200;0,400;0,500;0,600;1,200;1,400;1,500;1,600&display=swap" rel="stylesheet">
+    {# jQuery #}
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    {# jQuery UI #}
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script type="text/javascript" src="{% static 'app/index.js' %}"></script>
     {% block head_script %}{% endblock %}
-{#    <link rel="icon" type="image/png" href="">#}
+{# todo <link rel="icon" type="image/png" href="">#}
     <meta charset="UTF-8">
 </head>
 <body>

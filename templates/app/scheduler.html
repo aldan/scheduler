@@ -3,10 +3,11 @@
 
 {% block head_script %}
     <script type="text/javascript">
-        var semester_data = {{ data|safe }},
+        const semester_data = {{ data|safe }},
             semester_name = '{{ name }}',
-            semester_code = '{{ code }}';
-            semester_last_update_dt = '{{ update_dt }}'
+            semester_code = '{{ code }}',
+            semester_last_update_dt = '{{ update_dt }}';
+        let scheduleList = [{'id': '1', 'name': 'Default', 'data': {}}];
     </script>
 {% endblock %}
 
@@ -16,9 +17,14 @@
             <div class="textbox">
                 <div class="text text-s">Current semester: {{ name }}</div>
             </div>
+            <div class="schedule-select">
+                <select id="schedule-selector" type="text">
+                    <option value="1" selected>Default</option>
+                </select>
+            </div>
             <div class="course-select">
-                <input id="course-selector" type="text" placeholder="Type in course code">
-                <div id="filtered-course-list" style="display: none;"></div>
+                <input id="course-selector" type="" placeholder="Type in course code">
+{#                <div id="filtered-course-list" style="display: none;"></div>#}
             </div>
         </div>
         <div id="resize-handle"></div>
@@ -43,30 +49,7 @@
     </div>
 {% endblock %}
 
-{% block body_script %}
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $('#course-selector').on('input', function () {
-                console.log('Fired');
-                var received_input = document.getElementById('course-selector').value,
-                    filtered_course_list = semester_data.filter(function (el) {
-                    return el.ABBR.toLowerCase().indexOf(received_input.toLowerCase()) !== -1;
-                });
-                console.log(filtered_course_list);
-                if (filtered_course_list.length <= 10) {
-                    $('#filtered-course-list').empty();
-                    for (course of filtered_course_list) {
-                        $('#filtered-course-list').append(`
-                            <div class="filtered-course" data-id="${course.COURSEID}" onclick="selectCourse(this)">
-                                ${course.ABBR}
-                            </div>
-                        `);
-                    }
-                    $('#filtered-course-list').show();
-                } else {
-                    $('#filtered-course-list').hide();
-                }
-            });
-        });
-    </script>
-{% endblock %}
+{#{% block body_script %}#}
+{#    <script type="text/javascript">#}
+{#    </script>#}
+{#{% endblock %}#}
