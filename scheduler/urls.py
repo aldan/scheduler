@@ -22,4 +22,5 @@ urlpatterns = [
     path('admin/', admin.site.urls, name='admin'),
     path('', views.startpage, name='startpage'),
     path('app/', views.app, name='app'),
+    path('json', views.json, name='json'),
 ]

@@ -33,7 +33,7 @@ class GetCourseList(CronJobBase):
             print(f'getSemesters: request timed out')
             return
         except requests.exceptions.RequestException as Err:
-            print(f'getSemesters: error occurred\n{Err}')
+            print(f'getSemesters: error occurred\n{Err.args[0]}')
             return
         finally:
             print(f'getSemesters: STATUS {res.status_code}')
@@ -78,7 +78,7 @@ class GetCourseList(CronJobBase):
             print(f'getSearchData: request timed out')
             return
         except requests.exceptions.RequestException as Err:
-            print(f'getSearchData: generic error occurred\n{Err}')
+            print(f'getSearchData: generic error occurred\n{Err.args[0]}')
             return
         finally:
             print(f'getSearchData: STATUS {res.status_code}')

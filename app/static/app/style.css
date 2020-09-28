@@ -20,12 +20,6 @@ body {
     height: 100%;
 }
 
-.sidebar {
-    flex: 1 0 300px;
-    background: #aaa;
-    overflow: auto;
-}
-
 #resize-handle {
     flex: 0 0 15px;
     right: 0;
@@ -56,4 +50,26 @@ body {
 
 .timetable table {
     width: 100%;
+}
+
+.sidebar {
+    display: flex;
+    flex: 1 0 300px;
+    background: #aaa;
+    overflow: auto;
+    flex-direction: column;
+    justify-content: flex-start;
+    text-align: center;
+}
+
+.course-select {
+
+}
+
+#course-selector {
+
+}
+
+#filtered-course-list {
+
 }
