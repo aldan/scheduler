@@ -59,7 +59,80 @@ function addCourseToSchedule(schedule_id, course_id, course_sections, overwrite 
 function addCourseDataToStorage(id, data) {
 
     let key = `CourseID${id}`;
-    sessionStorage.setItem(key, JSON.stringify(data));
+    let val = {};
+
+    for (const section of data) {
+        let stype = section.ST,
+            days = [0,0,0,0,0,0,0],
+            [starttime, endtime] = section.TIMES.split('-');
+
+        while (!isNaN(stype[0]) && stype.length > 0) {
+            stype = stype.substring(1);
+        }
+
+        for (let i = 0; i < section.DAYS.length; i++) {
+            switch (section.DAYS[i]) {
+                case 'M':
+                    days[0] = 1;
+                    break;
+                case 'T':
+                    days[1] = 1;
+                    break;
+                case 'W':
+                    days[2] = 1;
+                    break;
+                case 'R':
+                    days[3] = 1;
+                    break;
+                case 'F':
+                    days[4] = 1;
+                    break;
+                case 'S':
+                    days[5] = 1;
+                default:
+                // skip
+            }
+        }
+
+        const convertToMins = (time12) => {
+
+            let [time, ampm] = time12.split(' '),
+                [hours, mins] = time.split(':');
+
+            hours = parseInt(hours);
+            mins = parseInt(mins);
+
+            if (hours === 12) {
+                hours = 0;
+            }
+
+            if (ampm === 'PM') {
+                hours += 12;
+            }
+
+            return 60 * hours + mins;
+        }
+
+        let edit_section = {
+            code: section.ST,
+            days: days,
+            starttime: convertToMins(starttime),
+            endtime: convertToMins(endtime),
+            enrolled: parseInt(section.ENR),
+            capacity: parseInt(section.CAPACITY),
+            faculty: section.FACULTY,
+            room: section.ROOM
+        }
+
+        try {
+            val[stype].push(edit_section);
+        } catch (e) {
+            val[stype] = [];
+            val[stype].push(edit_section);
+        }
+    }
+
+    sessionStorage.setItem(key, JSON.stringify(val));
 }
 
 function getCourseDataFromStorage(id) {
@@ -91,7 +164,8 @@ function addCourseView(id) {
     console.log(data);
     console.log(info);
 
-    $('#course-list-view').append(`<li>${info.ABBR}</li>`)
+    $('#course-list-view').append(`<div class="course-view" id="course-view-${id}"><div>${info.ABBR}: ${info.TITLE}</div></div>`)
+    // $('')
 
     return 1;
 }
