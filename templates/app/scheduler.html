@@ -3,7 +3,8 @@
 
 {% block head_script %}
     <script type="text/javascript">
-        const semester_data = {{ data|safe }},
+        const
+            semester_data = {{ data|safe }},
             semester_name = '{{ name }}',
             semester_code = '{{ code }}',
             semester_last_update_dt = '{{ update_dt }}';
@@ -24,7 +25,9 @@
             </div>
             <div class="course-select">
                 <input id="course-selector" type="" placeholder="Type in course code">
-{#                <div id="filtered-course-list" style="display: none;"></div>#}
+            </div>
+            <div>
+                <ul id="course-list-view"></ul>
             </div>
         </div>
         <div id="resize-handle"></div>
