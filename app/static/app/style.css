@@ -1,3 +1,6 @@
+/* style.css */
+/* Base Styles ********************************************************************************************************/
+
 * {
     box-sizing: border-box;
 }
@@ -11,55 +14,38 @@ body {
     padding: 0;
     height: 100%;
     width: 100%;
-    background: #fff;
     font-family: 'Work Sans', sans-serif;
 }
 
 .container {
     display: flex;
     height: 100%;
+    align-items: center;
 }
 
-#resize-handle {
-    flex: 0 0 15px;
-    right: 0;
-    background: #aaa;
+.section {
+    margin: 0 10vh 0 0;
 }
 
-.content {
-    flex: 9 0 auto;
-    background: #fff;
-}
-
-.text {
-    color: #111;
-
-}
-
-.text-s {
-
-}
-
-.text-l {
-
-}
-
-.timetable {
-    width: 100%;
-}
-
-.timetable table {
-    width: 100%;
-}
+/* Sidebar Styles *****************************************************************************************************/
 
 .sidebar {
+    z-index: 1;
     display: flex;
     flex: 1 0 300px;
+    height: 100%;
     background: #eee;
     overflow: auto;
     flex-direction: column;
-    justify-content: flex-start;
     text-align: center;
+}
+
+.textbox {
+    margin: 10vh 0 1vh 0;
+}
+
+#schedule-selector {
+    display: none;
 }
 
 .course-select {
@@ -71,5 +57,71 @@ body {
 }
 
 .course-view {
-    background: rgba(0,0,0,.25);
+    background: rgba(0, 0, 0, .25);
+}
+
+/* Timetable Styles ***************************************************************************************************/
+
+table {
+    border-collapse: collapse;
+    table-layout: fixed;
+    width: 100%;
+}
+
+.timetable {
+    flex: 9 0 auto;
+    height: 80vh;
+    width: 60vw;
+    min-width: 700px;
+}
+
+.timetable-view {
+    height: 100%;
+    margin: 0 auto;
+}
+
+.timetable-header {
+    height: 40px;
+}
+
+.timetable-box {
+    height: 95%;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.timetable-box::-webkit-scrollbar {
+    display: none;
+}
+
+.timetable-time {
+    width: 60px;
+    font-size: 0.8em;
+    font-weight: normal;
+    color: rgba(0, 0, 0, .5);
+    text-align: center;
+    border: 0;
+    position: relative;
+    top: -12px;
+}
+
+.timetable-weekend {
+    color: rgba(0, 0, 0, .5);
+}
+
+td {
+    position: relative;
+    text-align: center;
+    vertical-align: top;
+    height: 40px;
+    width: auto;
+    border-bottom: 1px solid #eee;
+    border-right: 1px solid #eee;
+    padding: 0.25rem 0.25rem 0 0.25rem;
+}
+
+td:last-child {
+    border-right: none;
 }

@@ -33,7 +33,11 @@ function updateScheduleList() {
     console.log(scheduleList);
 }
 
-function addCourseToSchedule(schedule_id, course_id, course_sections, overwrite = false) {
+function updateScheduleView() {
+
+}
+
+function addCourseToSchedule(schedule_id, course_id, course_section) {
 
     for (let schedule of scheduleList) {
 
@@ -42,17 +46,20 @@ function addCourseToSchedule(schedule_id, course_id, course_sections, overwrite 
             let course = course_id in schedule.data;
 
             if (course === undefined || !course) {
-                // todo add to view
-            } else {
-                // todo smth
+                schedule.data[course_id] = {};
             }
 
-            schedule.data[course_id] = course_sections;
+            if (course_section !== '') {
+                let [section, value] = course_section.split(':');
+                schedule.data[course_id][section] = value;
+            }
+
             break;
         }
     }
 
     updateScheduleList();
+    updateScheduleView();
 }
 
 // helper functions for course data manipulation
@@ -63,7 +70,7 @@ function addCourseDataToStorage(id, data) {
 
     for (const section of data) {
         let stype = section.ST,
-            days = [0,0,0,0,0,0,0],
+            days = [0, 0, 0, 0, 0, 0, 0],
             [starttime, endtime] = section.TIMES.split('-');
 
         while (!isNaN(stype[0]) && stype.length > 0) {
@@ -164,10 +171,35 @@ function addCourseView(id) {
     console.log(data);
     console.log(info);
 
-    $('#course-list-view').append(`<div class="course-view" id="course-view-${id}"><div>${info.ABBR}: ${info.TITLE}</div></div>`)
-    // $('')
+    $('#course-list-view').append(`<div class="course-view" id="course-view-${id}"><div>${info.ABBR}: ${info.TITLE}</div></div>`);
+
+    for (const section_name in data) {
+        $(`#course-view-${id}`).append(`
+            <div class="course-section">
+                <label for="course-section-select-${id}-${section_name}">${section_name}</label>
+                <select id="course-section-select-${id}-${section_name}" data-course="${id}" 
+                data-section="${section_name}" onchange="updateCourseSection(this)">
+                    <option value="-1">Select section</option>
+                </select>
+            </div>
+        `);
+        let iterator = 0;
+        for (const slot of data[section_name]) {
+            $(`#course-section-select-${id}-${section_name}`).append(`<option value="${slot.code}">${slot.code}</option>`);
+        }
+    }
 
     return 1;
+}
+
+function updateCourseSection(element) {
+
+    let selectedSectionCode = element.options[element.selectedIndex].value,
+        course_id = element.getAttribute('data-course'),
+        section = element.getAttribute('data-section'),
+        selected_schedule_id = $('#schedule-selector option:selected').val();
+
+    addCourseToSchedule(selected_schedule_id, course_id, `${section}:${selectedSectionCode}`);
 }
 
 $(document).ready(function () {
@@ -235,13 +267,13 @@ $(document).ready(function () {
             // get course data
             // todo normal check if course is in schedule
             if (getCourseDataFromStorage(course_id)) {
-                addCourseToSchedule(selected_schedule_id, course_id, [], 0);
+                addCourseToSchedule(selected_schedule_id, course_id, '');
                 addCourseView(course_id);
                 return false;
             }
 
             $.get(get_url, function (course_data) {
-                addCourseToSchedule(selected_schedule_id, course_id, [], 0);
+                addCourseToSchedule(selected_schedule_id, course_id, '');
                 addCourseDataToStorage(course_id, course_data);
                 addCourseView(course_id);
             });
