@@ -31,20 +31,20 @@ body {
 /* Scrollbar Styles ***************************************************************************************************/
 
 ::-webkit-scrollbar {
-	width: 6px;
+    width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-	background: #fff;
+    background: #fff;
 }
 
 ::-webkit-scrollbar-thumb {
-	background: rgba(0,0,0,.2);
-	border-radius: 3px;
+    background: rgba(0, 0, 0, .2);
+    border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-	background: rgba(0,0,0,.25);
+    background: rgba(0, 0, 0, .25);
 }
 
 /* Sidebar Styles *****************************************************************************************************/
@@ -67,6 +67,8 @@ body {
 #schedule-selector {
     display: none;
 }
+
+/* Course list Styles *************************************************************************************************/
 
 .course-select {
     margin: 0 0 2vh 0;
@@ -95,10 +97,120 @@ body {
     box-shadow: 0px 3px 10px rgba(0, 0, 0, .1);
 }
 
+.course-view-header {
+    display: flex;
+    justify-content: space-around;
+}
+
+.course-view-remove {
+    align-self: flex-start;
+    cursor: pointer;
+    border-radius: 1em;
+    padding: 0 .25em 0 .25em;
+    transition: all 0.2s;
+}
+
+.course-view-remove:hover {
+    background: rgba(0, 0, 0, .1);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, .2);
+}
+
+.course-view-content {
+    display: flex;
+    justify-content: flex-start;
+}
+
 .course-section {
     font-size: .8em;
-    margin-top: .5em;
+    margin: .5em .5em 0 0;
     text-align: left;
+}
+
+.course-section-select {
+    display: none;
+}
+
+.course-section-selectX {
+
+}
+
+.course-section-selectX-selector {
+    cursor: pointer;
+    border-radius: 1em;
+    border: 1px solid rgba(0, 0, 0, .2);
+    padding: 0 1em 0 1em;
+    width: fit-content;
+}
+
+.course-section-selectX-options {
+    display: none;
+    position: absolute;
+    width: 22em;
+    background: #fff;
+    border-radius: .5em;
+    padding: .5em .5em .5em .5em;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, .2);
+    z-index: 10;
+}
+
+.course-section-selectX:hover .course-section-selectX-options {
+    display: block;
+}
+
+.course-section-selectX-option {
+    margin-bottom: .25em;
+    border-bottom: 2px solid rgba(0,0,0,.2);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.course-section-selectX-option.selectedX {
+    background: rgba(0,0,0,.05);
+}
+
+.course-section-selectX-option:hover {
+    background: rgba(0,0,0,.1);
+}
+
+.course-section-selectX-option-top {
+    display: flex;
+    justify-items: flex-end;
+    align-items: center;
+    flex-wrap: wrap;
+    border-bottom: 1px dashed rgba(0,0,0,.1);
+    padding-bottom: .1em;
+    /*margin-bottom: .1em;*/
+}
+
+.course-section-selectX-option-name {
+    margin-right: auto;
+}
+
+.course-section-selectX-option-time {
+    color: rgba(0, 0, 0, .8);
+    margin-right: .5em;
+}
+
+.course-section-selectX-option-days {
+    background: rgba(0, 0, 0, .1);
+    border-radius: .25em;
+    margin-right: .5em;
+    padding: 0 .25em 0 .25em;
+}
+
+.course-section-selectX-option-cap {
+    margin-right: .5em;
+
+}
+
+.course-section-selectX-option-room {
+    margin-right: .5em;
+}
+
+.course-section-selectX-option-bottom {
+}
+
+.course-section-selectX-option-faculty {
 }
 
 /* Timetable Styles ***************************************************************************************************/

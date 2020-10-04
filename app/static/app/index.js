@@ -1,5 +1,5 @@
 // index.js
-/* cookies manipulation ***********************************************************************************************/
+/* helper functions ***************************************************************************************************/
 
 function setCookie(name, value, expires) {
 
@@ -21,6 +21,11 @@ function getCookie(name) {
     return '';
 }
 
+function minutesTo24String(minutes) {
+
+    return `${Math.trunc(minutes / 60)}:${(minutes % 60 < 10) ? '0' : ''}${minutes % 60}`;
+}
+
 /* ui manipulation ****************************************************************************************************/
 
 function selectSchedule(id) { /* ui: load courses from schedule with id and call updateScheduleView() */
@@ -38,7 +43,9 @@ function selectSchedule(id) { /* ui: load courses from schedule with id and call
         const cdata = data[course];
 
         for (const section in cdata) { /* pre-select course sections */
-            $(`#course-section-select-${course}-${section} option[value="${cdata[section]}"]`).prop('selected', true);
+            // $(`#course-section-select-${course}-${section} option[value="${cdata[section]}"]`).prop('selected', true);
+            $(`#course-section-selectX-option-${course}-${section}-${cdata[section]}`).addClass('selectedX');
+            $(`#course-section-selectX-${course}-${section} div:eq(0)`).text(cdata[section]);
         }
     }
 
@@ -59,7 +66,7 @@ function updateScheduleView(id) { /* ui: add events from schedule with id, call 
 
         const cdata = data[course],
             course_data = getCourseData(course),
-            [course_abbr, course_name] = $(`#course-view-${course} div:eq(0)`).html().split(': ');
+            [course_abbr, course_name] = $(`#course-view-${course} span:eq(0)`).html().split(': ');
 
         for (const section in cdata) {
             addEventToView(section, cdata[section], course_data, course_abbr);
@@ -77,8 +84,8 @@ function addEventToView(section, selected_section, course_data, course_abbr) { /
         time_end = section_data.endtime,
         slot = Math.trunc(time_start / 30),
         slot_len = (time_end - time_start) / 30,
-        time_start_str = `${Math.trunc(time_start / 60)}:${(time_start % 60 < 10) ? '0' : ''}${time_start % 60}`,
-        time_end_str = `${Math.trunc(time_end / 60)}:${(time_end % 60 < 10) ? '0' : ''}${time_end % 60}`;
+        time_start_str = minutesTo24String(time_start),
+        time_end_str = minutesTo24String(time_end);
 
     for (let day = 0; day < 7; day++) {
         if (section_data.days[day]) {
@@ -109,22 +116,49 @@ function addCourseView(id) { /* ui: add course to the list on sidebar */
     console.log(data);
     console.log(info);
 
-    $('#course-list-view').append(`<div class="course-view" id="course-view-${id}"><div>${info.ABBR}: ${info.TITLE}</div></div>`);
+    $('#course-list-view').append(`
+        <div class="course-view" id="course-view-${id}">
+            <div class="course-view-header">
+                <span>${info.ABBR}: ${info.TITLE}</span>
+                <span class="course-view-remove" onclick="removeCourseFromSchedule(-1,${id})">&#10006;</span>
+            </div>
+            <div class="course-view-content"></div>
+        </div>`);
 
     for (const section_name in data) {
 
-        $(`#course-view-${id}`).append(`
+        $(`#course-view-${id} .course-view-content`).append(`
             <div class="course-section">
-                <label for="course-section-select-${id}-${section_name}">${section_name}</label>
-                <select id="course-section-select-${id}-${section_name}" data-course="${id}" 
+                <select class="course-section-select" id="course-section-select-${id}-${section_name}" data-course="${id}" 
                 data-section="${section_name}" onchange="updateCourseSection(this)">
                     <option value="-1">Select section</option>
                 </select>
+                <div class="course-section-selectX" id="course-section-selectX-${id}-${section_name}">
+                    <div class="course-section-selectX-selector">${section_name}</div>
+                    <div class="course-section-selectX-options"></div>
+                </div>
             </div>
         `);
 
         for (const slot of data[section_name]) {
             $(`#course-section-select-${id}-${section_name}`).append(`<option value="${slot.code}">${slot.code}</option>`);
+            $(`#course-section-selectX-${id}-${section_name} .course-section-selectX-options`).append(`
+                <div class="course-section-selectX-option" id="course-section-selectX-option-${id}-${section_name}-${slot.code}"
+                onclick="updateCourseSectionCC('${id}','${section_name}','${slot.code}', this)">
+                    <div class="course-section-selectX-option-top">
+                        <b class="course-section-selectX-option-name">${slot.code}</b>
+                        <span class="course-section-selectX-option-time">
+                            ${minutesTo24String(slot.starttime)} - ${minutesTo24String(slot.endtime)}
+                        </span>
+                        <span class="course-section-selectX-option-days">${slot.daysStr}</span>
+                        <span class="course-section-selectX-option-cap">${slot.enrolled}/${slot.capacity}</span>
+                        <span class="course-section-selectX-option-room">${slot.room}</span>
+                    </div>
+                    <div class="course-section-selectX-option-bottom">
+                        <span class="course-section-selectX-option-faculty">${slot.faculty}</span>
+                    </div>
+                </div>
+            `);
         }
     }
 
@@ -139,6 +173,17 @@ function updateCourseSection(element) { /* ui: get selected sections from view a
         selected_schedule_id = $('#schedule-selector option:selected').val();
 
     addCourseToSchedule(selected_schedule_id, course_id, `${section}:${selectedSectionCode}`);
+}
+
+function updateCourseSectionCC(course_id, section, selected_section, elem) { /* ui: updateCourseSection() for selectX */
+
+    const selected_schedule_id = $('#schedule-selector option:selected').val();
+
+    $(`#course-section-selectX-${course_id}-${section} div:eq(0)`).text(selected_section);
+    $(`#course-section-selectX-${course_id}-${section} > div:eq(1) > div`).removeClass('selectedX');
+    $(elem).addClass('selectedX');
+
+    addCourseToSchedule(selected_schedule_id, course_id, `${section}:${selected_section}`);
 }
 
 /* schedule data manipulation *****************************************************************************************/
@@ -171,6 +216,30 @@ function addCourseToSchedule(schedule_id, course_id, course_section) { /* data: 
     }
 }
 
+function removeCourseFromSchedule(schedule_id, course_id) { /* data: remove course from schedule */
+
+    if (schedule_id === -1) {
+        schedule_id = $('#schedule-selector option:selected').val();
+    }
+
+    for (let schedule of scheduleList) {
+
+        if (schedule.id === schedule_id) {
+
+            if (!schedule.data[course_id]) {
+                console.log(`removeCourseFromSchedule: course with id=${course_id} does not exist in ${schedule.name}`);
+                return;
+            }
+
+            delete schedule.data[course_id];
+            storeScheduleList();
+            $(`#course-view-${course_id}`).remove();
+
+            break;
+        }
+    }
+}
+
 function storeScheduleList() { /* data: store schedule list in localStorage for later access in future sessions */
 
     localStorage.setItem('scheduleList', JSON.stringify(scheduleList));
@@ -190,7 +259,8 @@ function storeCourseData(id, data) { /* data: store course data in localStorage 
 
         let section_type = section.ST,
             days = [0, 0, 0, 0, 0, 0, 0],
-            [starttime, endtime] = section.TIMES.split('-');
+            [starttime, endtime] = section.TIMES.split('-'),
+            faculty = section.FACULTY.split('<br>');
 
         while (!isNaN(section_type[0]) && section_type.length > 0) {
             section_type = section_type.substring(1);
@@ -239,14 +309,19 @@ function storeCourseData(id, data) { /* data: store course data in localStorage 
             return 60 * hours + mins;
         }
 
+        for (let prof = 0; prof < faculty.length; prof++) {
+            faculty[prof] = faculty[prof].split(',').reverse().join(' ');
+        }
+
         const edited_section = {
             code: section.ST,
             days: days,
+            daysStr: section.DAYS,
             starttime: convertToMins(starttime),
             endtime: convertToMins(endtime),
             enrolled: parseInt(section.ENR),
             capacity: parseInt(section.CAPACITY),
-            faculty: section.FACULTY,
+            faculty: faculty.join(', '),
             room: section.ROOM
         }
 
