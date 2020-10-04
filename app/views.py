@@ -28,12 +28,22 @@ def app(req):
     semester_data = getattr(semester, 'semester_data')
     semester_update_dt = getattr(semester, 'last_update_datetime')
 
+    color_scheme = req.COOKIES.get('colorScheme')
+    if color_scheme:
+        if color_scheme == 'light':
+            color_scheme = 'light-theme'
+        else:
+            color_scheme = 'dark-theme'
+    else:
+        color_scheme = ''
+
     context = {
         'page_title': 'Scheduler',
         'name': semester_name,
         'code': semester_code,
         'update_dt': semester_update_dt,
         'data': SafeString(semester_data),
+        'color_scheme': color_scheme,
     }
 
     return render(req, 'app/scheduler.html', context)

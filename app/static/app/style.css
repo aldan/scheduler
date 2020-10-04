@@ -1,4 +1,113 @@
 /* style.css */
+/* Color Schemes ******************************************************************************************************/
+
+body {
+    --text: #000;
+    --text-light: #666;
+    --text-alt: #fff;
+
+    --background: #fff;
+    --background-light: #aaa;
+
+    --course-card: #fff;
+    --course-section-border: rgba(0, 0, 0, .2);
+    --course-section-selected: rgba(0, 0, 0, .05);
+    --course-section-hovered: rgba(0, 0, 0, .1);
+
+    --event: rgba(80, 80, 80, 1);
+    --border: #eee;
+
+    --transparent-5: rgba(0, 0, 0, .05);
+    --transparent-10: rgba(0, 0, 0, .1);
+    --transparent-20: rgba(0, 0, 0, .2);
+
+    --scrollbar: #fff;
+    --scrollbar-t: rgba(0, 0, 0, .2);
+    --scrollbar-th: rgba(0, 0, 0, .25);
+    transition: all 0.5s;
+}
+
+body.dark-theme {
+    --text: #ddd;
+    --text-light: #aaa;
+    --text-alt: #ddd;
+
+    --background: #444;
+    --background-light: #666;
+
+    --course-card: #555;
+    --course-section-border: rgba(0, 0, 0, .2);
+    --course-section-selected: rgba(255, 255, 255, .1);
+    --course-section-hovered: rgba(255, 255, 255, .15);
+
+    --event: rgba(160, 160, 160, 1);
+    --border: #666;
+
+    --transparent-5: rgba(255, 255, 255, .05);
+    --transparent-10: rgba(255, 255, 255, .1);
+    --transparent-20: rgba(255, 255, 255, .2);
+
+    --scrollbar: #000;
+    --scrollbar-t: rgba(255, 255, 255, .2);
+    --scrollbar-th: rgba(255, 255, 255, .25);
+    transition: all 0.5s;
+}
+
+@media (prefers-color-scheme: dark) {
+
+    body {
+        --text: #ddd;
+        --text-light: #aaa;
+        --text-alt: #ddd;
+
+        --background: #444;
+        --background-light: #666;
+
+        --course-card: #555;
+        --course-section-border: rgba(0, 0, 0, .2);
+        --course-section-selected: rgba(255, 255, 255, .1);
+        --course-section-hovered: rgba(255, 255, 255, .15);
+
+        --event: rgba(160, 160, 160, 1);
+        --border: #666;
+
+        --transparent-5: rgba(255, 255, 255, .05);
+        --transparent-10: rgba(255, 255, 255, .1);
+        --transparent-20: rgba(255, 255, 255, .2);
+
+        --scrollbar: #000;
+        --scrollbar-t: rgba(255, 255, 255, .2);
+        --scrollbar-th: rgba(255, 255, 255, .25);
+        transition: all 0.5s;
+    }
+
+    body.light-theme {
+        --text: #000;
+        --text-light: #666;
+        --text-alt: #fff;
+
+        --background: #fff;
+        --background-light: #aaa;
+
+        --course-card: #fff;
+        --course-section-border: rgba(0, 0, 0, .2);
+        --course-section-selected: rgba(0, 0, 0, .05);
+        --course-section-hovered: rgba(0, 0, 0, .1);
+
+        --event: rgba(80, 80, 80, 1);
+        --border: #eee;
+
+        --transparent-5: rgba(0, 0, 0, .05);
+        --transparent-10: rgba(0, 0, 0, .1);
+        --transparent-20: rgba(0, 0, 0, .2);
+
+        --scrollbar: #fff;
+        --scrollbar-t: rgba(0, 0, 0, .2);
+        --scrollbar-th: rgba(0, 0, 0, .25);
+        transition: all 0.5s;
+    }
+}
+
 /* Base Styles ********************************************************************************************************/
 
 * {
@@ -10,6 +119,8 @@ html {
 }
 
 body {
+    background: var(--background);
+    color: var(--text);
     margin: 0;
     padding: 0;
     height: 100%;
@@ -25,7 +136,7 @@ body {
 
 .section {
     margin: 0 10vh 0 0;
-    box-shadow: 0px 30px 50px rgba(0, 0, 0, .2), 0px 4px 8px rgba(0, 0, 0, .1);
+    box-shadow: 0 30px 50px rgba(0, 0, 0, .2), 0 4px 8px rgba(0, 0, 0, .1);
 }
 
 /* Scrollbar Styles ***************************************************************************************************/
@@ -35,16 +146,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-    background: #fff;
+    background: var(--background);
 }
 
 ::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, .2);
+    background: var(--scrollbar-t);
     border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, .25);
+    background: var(--scrollbar-th);
 }
 
 /* Sidebar Styles *****************************************************************************************************/
@@ -53,7 +164,8 @@ body {
     display: flex;
     flex: 1 0 300px;
     height: 100%;
-    background: #fff;
+    background: var(--background);
+    color: var(--text);
     z-index: 1;
     overflow: auto;
     flex-direction: column;
@@ -61,11 +173,18 @@ body {
 }
 
 .textbox {
+    color: var(--text);
     margin: 10vh 0 3vh 0;
 }
 
 #schedule-selector {
     display: none;
+}
+
+#theme-toggle {
+    color: var(--text);
+    cursor: pointer;
+    text-decoration: underline;
 }
 
 /* Course list Styles *************************************************************************************************/
@@ -89,12 +208,13 @@ body {
 }
 
 .course-view {
-    color: #444;
+    background: var(--course-card);
+    color: var(--text-light);
     padding: .5em .5em .5em .5em;
     width: 90%;
     margin-bottom: 1vh;
     border-radius: .25em;
-    box-shadow: 0px 3px 10px rgba(0, 0, 0, .1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, .1);
 }
 
 .course-view-header {
@@ -137,7 +257,7 @@ body {
 .course-section-selectX-selector {
     cursor: pointer;
     border-radius: 1em;
-    border: 1px solid rgba(0, 0, 0, .2);
+    border: 1px solid var(--transparent-10);
     padding: 0 1em 0 1em;
     width: fit-content;
 }
@@ -146,7 +266,7 @@ body {
     display: none;
     position: absolute;
     width: 22em;
-    background: #fff;
+    background: var(--background);
     border-radius: .5em;
     padding: .5em .5em .5em .5em;
     box-shadow: 0 10px 20px rgba(0, 0, 0, .2);
@@ -159,17 +279,17 @@ body {
 
 .course-section-selectX-option {
     margin-bottom: .25em;
-    border-bottom: 2px solid rgba(0,0,0,.2);
+    border-bottom: 2px solid var(--transparent-20);
     cursor: pointer;
     transition: all 0.2s;
 }
 
 .course-section-selectX-option.selectedX {
-    background: rgba(0,0,0,.05);
+    background: var(--course-section-selected);
 }
 
 .course-section-selectX-option:hover {
-    background: rgba(0,0,0,.1);
+    background: var(--course-section-hovered);
 }
 
 .course-section-selectX-option-top {
@@ -177,7 +297,7 @@ body {
     justify-items: flex-end;
     align-items: center;
     flex-wrap: wrap;
-    border-bottom: 1px dashed rgba(0,0,0,.1);
+    border-bottom: 1px dashed var(--transparent-10);
     padding-bottom: .1em;
     /*margin-bottom: .1em;*/
 }
@@ -187,12 +307,12 @@ body {
 }
 
 .course-section-selectX-option-time {
-    color: rgba(0, 0, 0, .8);
+    color: var(--text-light);
     margin-right: .5em;
 }
 
 .course-section-selectX-option-days {
-    background: rgba(0, 0, 0, .1);
+    background: var(--transparent-10);
     border-radius: .25em;
     margin-right: .5em;
     padding: 0 .25em 0 .25em;
@@ -255,7 +375,7 @@ table {
     width: 60px;
     font-size: 0.8em;
     font-weight: normal;
-    color: rgba(0, 0, 0, .5);
+    color: var(--text-light);
     text-align: center;
     border: 0;
     position: relative;
@@ -263,7 +383,7 @@ table {
 }
 
 .timetable-weekend {
-    color: rgba(0, 0, 0, .5);
+    color: var(--text-light);
 }
 
 td {
@@ -272,8 +392,8 @@ td {
     vertical-align: top;
     height: 40px;
     width: auto;
-    border-bottom: 1px solid #eee;
-    border-right: 1px solid #eee;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
     padding: 0.25em 0.25em 0 0.25em;
 }
 
@@ -286,8 +406,8 @@ tr.timetable-last td {
 }
 
 .event {
-    background: rgba(80, 80, 80, 1);
-    color: #fff;
+    background: var(--event);
+    color: var(--text-alt);
     text-align: left;
     font-size: 0.9em;
     z-index: 10;

@@ -352,6 +352,41 @@ function getCourseData(id) { /* data: try to get course data from local storage,
 
 $(document).ready(() => {
 
+    {
+        const prefersDarkTheme = window.matchMedia('(prefers-color-scheme: dark)'),
+            toggle = document.getElementById('theme-toggle');
+
+        if ($('body').hasClass('dark-theme')) {
+            toggle.innerHTML = 'light theme';
+            console.log('user prefers dark theme');
+        } else if (prefersDarkTheme.matches && !$('body').hasClass('light-theme')) {
+            toggle.innerHTML = 'light theme';
+            console.log('user prefers dark theme');
+        }
+
+        toggle.addEventListener('click', () => {
+            if (prefersDarkTheme.matches) {
+                document.body.classList.toggle('light-theme');
+                if (toggle.innerHTML === 'light theme') {
+                    setCookie('colorScheme', 'light', 365);
+                    toggle.innerHTML = 'dark theme';
+                } else {
+                    setCookie('colorScheme', 'dark', 365);
+                    toggle.innerHTML = 'light theme';
+                }
+            } else {
+                document.body.classList.toggle('dark-theme');
+                if (toggle.innerHTML === 'dark theme') {
+                    setCookie('colorScheme', 'dark', 365);
+                    toggle.innerHTML = 'light theme';
+                } else {
+                    setCookie('colorScheme', 'light', 365);
+                    toggle.innerHTML = 'dark theme';
+                }
+            }
+        });
+    }
+
     { /* load scheduleList from local storage and load default schedule */
         const schedules = localStorage.getItem('scheduleList');
 
