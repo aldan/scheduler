@@ -339,6 +339,8 @@ $(document).ready(function () {
                 addCourseToSchedule(selected_schedule_id, course_id, '');
                 addCourseDataToStorage(course_id, course_data);
                 addCourseView(course_id);
+            }).fail(() => {
+                alert('Registrar is unavailable')
             });
 
             event.preventDefault();

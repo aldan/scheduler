@@ -25,23 +25,42 @@ body {
 
 .section {
     margin: 0 10vh 0 0;
+    box-shadow: 0px 30px 50px rgba(0, 0, 0, .2), 0px 4px 8px rgba(0, 0, 0, .1);
+}
+
+/* Scrollbar Styles ***************************************************************************************************/
+::-webkit-scrollbar {
+	width: 6px;
+}
+
+::-webkit-scrollbar-track {
+	background: #fff;
+}
+
+::-webkit-scrollbar-thumb {
+	background: rgba(0,0,0,.2);
+	border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: rgba(0,0,0,.25);
 }
 
 /* Sidebar Styles *****************************************************************************************************/
 
 .sidebar {
-    z-index: 1;
     display: flex;
     flex: 1 0 300px;
     height: 100%;
-    background: #eee;
+    background: #fff;
+    z-index: 1;
     overflow: auto;
     flex-direction: column;
     text-align: center;
 }
 
 .textbox {
-    margin: 10vh 0 1vh 0;
+    margin: 10vh 0 3vh 0;
 }
 
 #schedule-selector {
@@ -49,15 +68,36 @@ body {
 }
 
 .course-select {
-
+    margin: 0 0 2vh 0;
 }
 
 #course-selector {
+    width: 60%;
+    height: 2em;
+    border-radius: .5em;
+}
 
+#course-list-view {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-height: 60vh;
+    overflow-y: scroll;
 }
 
 .course-view {
-    background: rgba(0, 0, 0, .25);
+    color: #444;
+    padding: .5em .5em .5em .5em;
+    width: 90%;
+    margin-bottom: 1vh;
+    border-radius: .25em;
+    box-shadow: 0px 3px 10px rgba(0, 0, 0, .1);
+}
+
+.course-section {
+    font-size: .8em;
+    margin-top: .5em;
+    text-align: left;
 }
 
 /* Timetable Styles ***************************************************************************************************/
@@ -73,11 +113,13 @@ table {
     height: 80vh;
     width: 60vw;
     min-width: 700px;
+    border-radius: .5em;
 }
 
 .timetable-view {
     height: 100%;
     margin: 0 auto;
+    padding-right: 1em;
 }
 
 .timetable-header {
@@ -85,7 +127,7 @@ table {
 }
 
 .timetable-box {
-    height: 95%;
+    height: 94%;
     overflow-x: hidden;
     overflow-y: scroll;
     -ms-overflow-style: none;
@@ -104,7 +146,7 @@ table {
     text-align: center;
     border: 0;
     position: relative;
-    top: -12px;
+    top: -0.8em;
 }
 
 .timetable-weekend {
@@ -124,6 +166,10 @@ td {
 
 td:last-child {
     border-right: none;
+}
+
+tr.timetable-last td {
+    border-bottom: none;
 }
 
 .event {
