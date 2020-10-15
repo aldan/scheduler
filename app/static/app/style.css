@@ -139,6 +139,10 @@ body {
     box-shadow: 0 30px 50px rgba(0, 0, 0, .2), 0 4px 8px rgba(0, 0, 0, .1);
 }
 
+.loading-string::after {
+    content: ".";
+}
+
 /* Scrollbar Styles ***************************************************************************************************/
 
 ::-webkit-scrollbar {

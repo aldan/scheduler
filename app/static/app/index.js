@@ -240,6 +240,21 @@ function removeCourseFromSchedule(schedule_id, course_id) { /* data: remove cour
     }
 }
 
+function isInSchedule(schedule_id, course_id) {
+
+    const schedule = scheduleList.filter((sch) => {
+        return sch.id === schedule_id;
+    })[0];
+
+    for (const course in schedule.data) {
+        if (course === course_id) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 function storeScheduleList() { /* data: store schedule list in localStorage for later access in future sessions */
 
     localStorage.setItem('scheduleList', JSON.stringify(scheduleList));
@@ -352,7 +367,7 @@ function getCourseData(id) { /* data: try to get course data from local storage,
 
 $(document).ready(() => {
 
-    {
+    { /* select required color scheme */
         const prefersDarkTheme = window.matchMedia('(prefers-color-scheme: dark)'),
             toggle = document.getElementById('theme-toggle');
 
@@ -423,26 +438,42 @@ $(document).ready(() => {
             let course_name = ui.item.label,
                 course_id = ui.item.value,
                 get_url = `/json?method=getCourseById&courseId=${course_id}&semesterId=${semester_code}`,
-                selected_schedule_id = $('#schedule-selector option:selected').val();
+                schedule_id = $('#schedule-selector option:selected').val();
 
             $(this).val('');
-            // todo loading anime
-            // get course data
-            // todo normal check if course is in schedule
-            if (getCourseData(course_id)) {
-                addCourseToSchedule(selected_schedule_id, course_id, '');
-                addCourseView(course_id);
-                return false;
-            }
 
-            // todo move get to getCourseData()
-            $.get(get_url, (course_data) => {
-                addCourseToSchedule(selected_schedule_id, course_id, '');
-                storeCourseData(course_id, course_data);
+            // get course data
+            if (isInSchedule(schedule_id, course_id)) {
+                return false;
+            } else if (getCourseData(course_id)) {
+
+                addCourseToSchedule(schedule_id, course_id, '');
                 addCourseView(course_id);
-            }).fail(() => {
-                alert('Registrar is unavailable');
-            });
+            } else {
+
+                // loading string
+                $('#course-list-view').append(`
+                    <div class="course-view" id="course-view-${course_id}-loading">
+                        <div class="course-view-header"><span>Working.</span></div>
+                    </div>
+                `);
+
+                let course_load_interval = setInterval(() => {
+                    $(`#course-view-${course_id}-loading div:eq(0) span`).toggleClass('loading-string');
+                }, 500);
+
+                $.get(get_url, (course_data) => {
+                    clearInterval(course_load_interval);
+                    $(`#course-view-${course_id}-loading`).remove();
+                    addCourseToSchedule(schedule_id, course_id, '');
+                    storeCourseData(course_id, course_data);
+                    addCourseView(course_id);
+                }).fail(() => {
+                    alert('Registrar is unavailable');
+                    clearInterval(course_load_interval);
+                    $(`#course-view-${course_id}-loading`).remove();
+                });
+            }
 
             event.preventDefault();
         }
