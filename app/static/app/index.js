@@ -434,6 +434,10 @@ $(document).ready(() => {
             }));
         },
 
+        focus: function (event, ui) {
+            event.preventDefault();
+        },
+
         select: function (event, ui) {
             let course_name = ui.item.label,
                 course_id = ui.item.value,

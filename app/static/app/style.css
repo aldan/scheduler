@@ -170,19 +170,36 @@ body {
     height: 100%;
     background: var(--background);
     color: var(--text);
-    z-index: 1;
+    z-index: 10;
     overflow: auto;
     flex-direction: column;
     text-align: center;
 }
 
+.sidebar-header {
+    margin: 10vh 0 2vh 0;
+}
+
 .textbox {
     color: var(--text);
-    margin: 10vh 0 3vh 0;
+    margin: 0 0 3vh 0;
 }
 
 #schedule-selector {
     display: none;
+}
+
+.course-select {
+    margin: 0 0 2vh 0;
+}
+
+.course-list {
+    margin: 0 0 2vh 0;
+    overflow-x: hidden;
+}
+
+.footer {
+    margin: auto 0 1em 0;
 }
 
 #theme-toggle {
@@ -191,16 +208,67 @@ body {
     text-decoration: underline;
 }
 
-/* Course list Styles *************************************************************************************************/
+/* Autocomplete Styles ************************************************************************************************/
 
-.course-select {
-    margin: 0 0 2vh 0;
+.ui-autocomplete {
+    position: absolute;
+    overflow-y: auto;
+    max-height: 40vh;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    float: left;
+    display: none;
+    min-width: 160px;
+    padding: 4px 0;
+    margin: 0 0 10px 25px;
+    list-style: none;
+    background: var(--background);
+    border: none;
+    border-radius: .5em;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, .2);
+    background-clip: padding-box;
+    *border-right-width: 2px;
+    *border-bottom-width: 2px;
 }
+
+.ui-menu-item {
+    padding: .25em .5em 0 .5em;
+    color: var(--text);
+    background: var(--background);
+    white-space: nowrap;
+}
+
+.ui-menu-item > div {
+    padding: 0 .25em 0 .25em;
+}
+
+.ui-state-hover, .ui-state-active {
+    border-radius: .25em;
+    color: var(--text-alt);
+    background: var(--background-light);
+}
+
+.ui-helper-hidden-accessible {
+    display: none;
+}
+
+/* Course list Styles *************************************************************************************************/
 
 #course-selector {
     width: 60%;
     height: 2em;
-    border-radius: .5em;
+    border: none;
+    outline: 0;
+    color: var(--text);
+    border-bottom: solid 2px var(--background-light);
+    background: var(--background);
+    transition: all 0.2s;
+    padding: .5em;
+}
+
+#course-selector:focus {
+    border-bottom: solid 2px var(--text);
 }
 
 #course-list-view {
@@ -209,6 +277,7 @@ body {
     align-items: center;
     max-height: 60vh;
     overflow-y: scroll;
+    overflow-x: hidden;
 }
 
 .course-view {
@@ -255,7 +324,7 @@ body {
 }
 
 .course-section-selectX {
-
+    position: relative;
 }
 
 .course-section-selectX-selector {
@@ -274,7 +343,10 @@ body {
     border-radius: .5em;
     padding: .5em .5em .5em .5em;
     box-shadow: 0 10px 20px rgba(0, 0, 0, .2);
-    z-index: 10;
+    z-index: 999;
+    max-height: 20vh;
+    overflow-y: auto;
+    overflow-x: visible;
 }
 
 .course-section-selectX:hover .course-section-selectX-options {
@@ -390,6 +462,10 @@ table {
     color: var(--text-light);
 }
 
+.sunday {
+    display: none;
+}
+
 td {
     position: relative;
     text-align: center;
@@ -401,7 +477,12 @@ td {
     padding: 0.25em 0.25em 0 0.25em;
 }
 
-td:last-child {
+td:last-child { /* sunday cells */
+    display: none;
+    border-right: none;
+}
+
+td:nth-last-child(2) { /* saturday cells */
     border-right: none;
 }
 
