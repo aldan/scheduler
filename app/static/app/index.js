@@ -116,13 +116,16 @@ function addCourseView(id) { /* ui: add course to the list on sidebar */
     console.log(data);
     console.log(info);
 
+    // todo color palette
     $('#course-list-view').append(`
         <div class="course-view" id="course-view-${id}">
             <div class="course-view-header">
-                <span>${info.ABBR}: ${info.TITLE}</span>
+                <span class="course-view-title">${info.ABBR}: ${info.TITLE}</span>
                 <span class="course-view-remove" onclick="removeCourseFromSchedule(-1,${id})">&#10006;</span>
             </div>
-            <div class="course-view-content"></div>
+            <div class="course-view-content">
+                
+            </div>
         </div>`);
 
     for (const section_name in data) {
@@ -133,13 +136,14 @@ function addCourseView(id) { /* ui: add course to the list on sidebar */
                 data-section="${section_name}" onchange="updateCourseSection(this)">
                     <option value="-1">Select section</option>
                 </select>
-                <div class="course-section-selectX" id="course-section-selectX-${id}-${section_name}">
+                <div class="course-section-selectX" id="course-section-selectX-${id}-${section_name}" onmouseover="updateSelectXPosition(this)">
                     <div class="course-section-selectX-selector">${section_name}</div>
                     <div class="course-section-selectX-options"></div>
                 </div>
             </div>
         `);
 
+        // todo mouseover event listener to calculate select box position (absolute)
         for (const slot of data[section_name]) {
             $(`#course-section-select-${id}-${section_name}`).append(`<option value="${slot.code}">${slot.code}</option>`);
             $(`#course-section-selectX-${id}-${section_name} .course-section-selectX-options`).append(`
@@ -163,6 +167,19 @@ function addCourseView(id) { /* ui: add course to the list on sidebar */
     }
 
     return 1;
+}
+
+function updateSelectXPosition(element) { /* ui fix: prevents selectX-options offset from selectX */
+
+    let selectX_pos = $(element).position(),
+        selectX_top = selectX_pos.top,
+        selectX_left = selectX_pos.left,
+        font_size = parseFloat($('body').css('font-size'));
+
+    // console.log(`selectX position: top: ${selectX_top}, left: ${selectX_left}`);
+
+    // $(`.course-section-selectX-options`, element).css({top: selectX_top + font_size * 1.2, left: selectX_left});
+    $(`.course-section-selectX-options`, element).css({top: selectX_top + font_size, left: selectX_left});
 }
 
 function updateCourseSection(element) { /* ui: get selected sections from view and call addCourseToSchedule() */

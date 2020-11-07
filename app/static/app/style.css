@@ -132,6 +132,7 @@ body {
     display: flex;
     height: 100%;
     align-items: center;
+    z-index: 2;
 }
 
 .section {
@@ -275,7 +276,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    max-height: 60vh;
+    max-height: 50vh;
     overflow-y: scroll;
     overflow-x: hidden;
 }
@@ -292,7 +293,11 @@ body {
 
 .course-view-header {
     display: flex;
-    justify-content: space-around;
+    justify-content: flex-end;
+}
+
+.course-view-title {
+    margin: 0 auto 0 auto;
 }
 
 .course-view-remove {
@@ -324,7 +329,7 @@ body {
 }
 
 .course-section-selectX {
-    position: relative;
+    /*position: relative;*/
 }
 
 .course-section-selectX-selector {
@@ -336,21 +341,27 @@ body {
 }
 
 .course-section-selectX-options {
-    display: none;
-    position: absolute;
+    /*display: none;*/
+    position: fixed;
     width: 22em;
     background: var(--background);
     border-radius: .5em;
     padding: .5em .5em .5em .5em;
     box-shadow: 0 10px 20px rgba(0, 0, 0, .2);
-    z-index: 999;
     max-height: 20vh;
     overflow-y: auto;
-    overflow-x: visible;
+    z-index: 0;
+    transition: opacity 0.25s;
+    transition-delay: 0.1s;
+    margin-left: 999em; /* cringe expert */
+    opacity: 0;
 }
 
-.course-section-selectX:hover .course-section-selectX-options {
-    display: block;
+.course-section-selectX:hover > .course-section-selectX-options {
+    /*display: block;*/
+    z-index: 10;
+    opacity: 1;
+    margin-left: 0;
 }
 
 .course-section-selectX-option {

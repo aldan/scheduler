@@ -8,7 +8,22 @@
             semester_name = '{{ name }}',
             semester_code = '{{ code }}',
             semester_last_update_dt = '{{ update_dt }}';
-        let scheduleList = [{'id': '1', 'name': 'Default', 'data': {}}];
+
+        let scheduleList = [{'id': '1', 'name': 'Default', 'data': {}}],
+            event_color_set = {
+                'D50000': 0, // Tomato
+                'E67C73': 0, // Flamingo
+                'F4511E': 0, // Tangerine
+                'F6BF26': 0, // Banana
+                '33B679': 0, // Sage
+                '0B8043': 0, // Basil
+                '039BE5': 0, // Peacock
+                '3F51B5': 0, // Blueberry
+                '7986CB': 0, // Lavender
+                '8E24AA': 0, // Grape
+                '616161': 0, // Graphite
+                '795548': 0  // Custom (Brown)
+            };
     </script>
 {% endblock %}
 
