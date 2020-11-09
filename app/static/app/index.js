@@ -100,7 +100,7 @@ function addEventToView(section, selected_section, course_data, course_abbr, col
         slot_len = (time_end - time_start) / 30,
         time_start_str = minutesTo24String(time_start),
         time_end_str = minutesTo24String(time_end),
-        color_class = (color) ? `background-${color}`: '';
+        color_class = (color) ? `background-${color}` : '';
 
     for (let day = 0; day < 7; day++) {
         if (section_data.days[day]) {
@@ -144,7 +144,6 @@ function addCourseView(id) { /* ui: add course to the list on sidebar */
         return html;
     }
 
-    // todo color palette
     $('#course-list-view').append(`
         <div class="course-view" id="course-view-${id}">
             <div class="course-view-header">
@@ -153,14 +152,15 @@ function addCourseView(id) { /* ui: add course to the list on sidebar */
             </div>
             <div class="course-view-content">
                 <div class="course-view-color">
-                    <div class="course-color-select" id="course-color-select-${id}">
+                    <div class="course-color-select" id="course-color-select-${id}" onmouseover="updateColorPalettePosition(this)">
                         <div class="course-color-select-palette">
                             ${generateColorSetHTML(id)}
                         </div>
                     </div>
                 </div>
             </div>
-        </div>`);
+        </div>
+    `);
 
     for (const section_name in data) {
 
@@ -179,7 +179,6 @@ function addCourseView(id) { /* ui: add course to the list on sidebar */
             </div>
         `);
 
-        // todo mouseover event listener to calculate select box position (absolute)
         for (const slot of data[section_name]) {
             $(`#course-section-select-${id}-${section_name}`).append(`<option value="${slot.code}">${slot.code}</option>`);
             $(`#course-section-selectX-${id}-${section_name} .course-section-selectX-options`).append(`
@@ -220,6 +219,16 @@ function updateSelectXPosition(element) { /* ui fix: prevents selectX-options of
 
     // $(`.course-section-selectX-options`, element).css({top: selectX_top + font_size * 1.2, left: selectX_left});
     $(`.course-section-selectX-options`, element).css({top: selectX_top + font_size, left: selectX_left});
+}
+
+function updateColorPalettePosition(element) { /* ui fix: prevents selectX-options offset from selectX */
+
+    let elem_pos = $(element).position(),
+        elem_top = elem_pos.top,
+        elem_left = elem_pos.left,
+        font_size = parseFloat($('body').css('font-size'));
+
+    $(`.course-color-select-palette`, element).css({top: elem_top + font_size, left: elem_left});
 }
 
 function updateCourseSection(element) { /* ui: get selected sections from view and call addCourseToSchedule() */
