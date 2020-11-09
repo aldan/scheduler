@@ -108,6 +108,104 @@ body.dark-theme {
     }
 }
 
+/* Generic Color Set **************************************************************************************************/
+
+.color-tomato {
+    color: #D50000;
+}
+
+.color-flamingo {
+    color: #E67C73;
+}
+
+.color-tangerine {
+    color: #F4511E;
+}
+
+.color-banana {
+    color: #F6BF26;
+}
+
+.color-sage {
+    color: #33B679;
+}
+
+.color-basil {
+    color: #0B8043;
+}
+
+.color-peacock {
+    color: #039BE5;
+}
+
+.color-blueberry {
+    color: #3F51B5;
+}
+
+.color-lavender {
+    color: #7986CB;
+}
+
+.color-grape {
+    color: #8E24AA;
+}
+
+.color-graphite {
+    color: #616161;
+}
+
+.color-brown {
+    color: #795548;
+}
+
+.background-tomato {
+    background: #D50000 !important;
+}
+
+.background-flamingo {
+    background: #E67C73 !important;
+}
+
+.background-tangerine {
+    background: #F4511E !important;
+}
+
+.background-banana {
+    background: #F6BF26 !important;
+}
+
+.background-sage {
+    background: #33B679 !important;
+}
+
+.background-basil {
+    background: #0B8043 !important;
+}
+
+.background-peacock {
+    background: #039BE5 !important;
+}
+
+.background-blueberry {
+    background: #3F51B5 !important;
+}
+
+.background-lavender {
+    background: #7986CB !important;
+}
+
+.background-grape {
+    background: #8E24AA !important;
+}
+
+.background-graphite {
+    background: #616161 !important;
+}
+
+.background-brown {
+    background: #795548 !important;
+}
+
 /* Base Styles ********************************************************************************************************/
 
 * {
@@ -316,12 +414,87 @@ body {
 .course-view-content {
     display: flex;
     justify-content: flex-start;
+    align-items: flex-end;
+}
+
+.course-view-color {
+    margin: .5em .5em 0 0;
+}
+
+.course-color-select {
+    cursor: pointer;
+    border-radius: 1em;
+    height: 1em;
+    width: 1em;
+    border: 1px solid var(--transparent-10);
+    background: var(--event);
+}
+
+.course-color-select-palette {
+    display: flex;
+    position: fixed;
+    flex-flow: column wrap;
+    justify-content: space-evenly;
+    align-content: space-evenly;
+    height: 3em;
+    width: 9em;
+    cursor: default;
+    background: var(--background);
+    border-radius: .5em;
+    padding: .25em .25em .25em .25em;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, .2);
+    z-index: 0;
+    transition: opacity 0.25s;
+    transition-delay: 0.1s;
+    margin-left: 999em; /* cringe expert */
+    opacity: 0;
+}
+
+.course-color-select:hover > .course-color-select-palette {
+    z-index: 10;
+    opacity: 1;
+    margin-left: 0;
+}
+
+.course-color-select-palette-option {
+    cursor: pointer;
+    height: 1em;
+    width: 1em;
+    margin: auto;
+    color: rgba(255,255,255,1);
+    border: 1px solid var(--transparent-10);
+    border-radius: 1em;
+    transition: all 0.2s;
+}
+
+.course-color-select-palette-option-tick {
+    opacity: 0;
+    font-size: 0.75em;
+    margin: -.125em;
+}
+
+.course-color-select-palette-option:hover {
+    opacity: .5;
+}
+
+.course-color-select-palette-option:hover .course-color-select-palette-option-tick {
+    opacity: .75;
+}
+
+.course-color-select-palette-option.selected .course-color-select-palette-option-tick {
+    opacity: 1;
+}
+
+.course-view-credits {
+    font-size: 0.75em;
+    margin: .5em .5em .125em 0;
 }
 
 .course-section {
-    font-size: .8em;
+    font-size: .75em;
     margin: .5em .5em 0 0;
     text-align: left;
+    /*max-height: 1em;*/
 }
 
 .course-section-select {

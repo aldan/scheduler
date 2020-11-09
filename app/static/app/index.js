@@ -40,9 +40,21 @@ function selectSchedule(id) { /* ui: load courses from schedule with id and call
     for (const course in data) {
 
         addCourseView(course);
-        const cdata = data[course];
+        const cdata = data[course],
+            course_color = cdata['color'];
+
+        if (!course_color) {
+            console.log(`no color property for course ${course}`);
+        } else {
+            $(`#course-color-select-${course}`).addClass(`background-${course_color}`);
+            $(`#course-color-select-${course} > div:eq(0) > div.background-${course_color}`).addClass('selected');
+        }
+
 
         for (const section in cdata) { /* pre-select course sections */
+
+            if (section === 'color') continue;
+
             // $(`#course-section-select-${course}-${section} option[value="${cdata[section]}"]`).prop('selected', true);
             $(`#course-section-selectX-option-${course}-${section}-${cdata[section]}`).addClass('selectedX');
             $(`#course-section-selectX-${course}-${section} div:eq(0)`).text(cdata[section]);
@@ -66,15 +78,17 @@ function updateScheduleView(id) { /* ui: add events from schedule with id, call 
 
         const cdata = data[course],
             course_data = getCourseData(course),
-            [course_abbr, course_name] = $(`#course-view-${course} span:eq(0)`).html().split(': ');
+            [course_abbr, course_name] = $(`#course-view-${course} span:eq(0)`).html().split(': '),
+            course_color = cdata['color'];
 
         for (const section in cdata) {
-            addEventToView(section, cdata[section], course_data, course_abbr);
+            if (section === 'color') continue;
+            addEventToView(section, cdata[section], course_data, course_abbr, course_color);
         }
     }
 }
 
-function addEventToView(section, selected_section, course_data, course_abbr) { /* ui: add event to timetable */
+function addEventToView(section, selected_section, course_data, course_abbr, color) { /* ui: add event to timetable */
 
     const section_data = course_data[section].filter((sec) => {
         return sec.code === selected_section;
@@ -85,12 +99,13 @@ function addEventToView(section, selected_section, course_data, course_abbr) { /
         slot = Math.trunc(time_start / 30),
         slot_len = (time_end - time_start) / 30,
         time_start_str = minutesTo24String(time_start),
-        time_end_str = minutesTo24String(time_end);
+        time_end_str = minutesTo24String(time_end),
+        color_class = (color) ? `background-${color}`: '';
 
     for (let day = 0; day < 7; day++) {
         if (section_data.days[day]) {
             $(`.timetable-box table tr:eq(${slot - 13}) td:eq(${day + 1})`).append(`
-                <div class="event" style="height: ${100 * slot_len}%">
+                <div class="event ${color_class}" style="height: ${100 * slot_len}%">
                     <b>${course_abbr}: ${selected_section}</b><br>
                     <span style="color: rgba(255,255,255,.8)">${time_start_str} - ${time_end_str}</span>
                 </div>
@@ -116,6 +131,19 @@ function addCourseView(id) { /* ui: add course to the list on sidebar */
     console.log(data);
     console.log(info);
 
+    const generateColorSetHTML = (id) => {
+
+        let html = ``;
+
+        for (const color in named_color_set) {
+            html += `<div class="course-color-select-palette-option background-${color}" 
+                          onclick="updateCourseColor('${id}', '${color}', this)">
+                    <div class="course-color-select-palette-option-tick">&#10003;</div></div>`;
+        }
+
+        return html;
+    }
+
     // todo color palette
     $('#course-list-view').append(`
         <div class="course-view" id="course-view-${id}">
@@ -124,11 +152,19 @@ function addCourseView(id) { /* ui: add course to the list on sidebar */
                 <span class="course-view-remove" onclick="removeCourseFromSchedule(-1,${id})">&#10006;</span>
             </div>
             <div class="course-view-content">
-                
+                <div class="course-view-color">
+                    <div class="course-color-select" id="course-color-select-${id}">
+                        <div class="course-color-select-palette">
+                            ${generateColorSetHTML(id)}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>`);
 
     for (const section_name in data) {
+
+        if (section_name === 'color') continue;
 
         $(`#course-view-${id} .course-view-content`).append(`
             <div class="course-section">
@@ -166,6 +202,10 @@ function addCourseView(id) { /* ui: add course to the list on sidebar */
         }
     }
 
+    $(`#course-view-${id} .course-view-content`).append(`
+        <div class="course-view-credits">${info.CRECTS} ECTS</div>
+    `);
+
     return 1;
 }
 
@@ -201,6 +241,18 @@ function updateCourseSectionCC(course_id, section, selected_section, elem) { /* 
     $(elem).addClass('selectedX');
 
     addCourseToSchedule(selected_schedule_id, course_id, `${section}:${selected_section}`);
+}
+
+function updateCourseColor(course_id, selected_color, elem) { /* ui: updateCourseSection() for selectX */
+
+    const selected_schedule_id = $('#schedule-selector option:selected').val();
+
+    $(`#course-color-select-${course_id}`).removeClass().addClass(`course-color-select background-${selected_color}`);
+
+    $(`#course-color-select-${course_id} > div:eq(0) > div`).removeClass('selected');
+    $(elem).addClass('selected');
+
+    addCourseToSchedule(selected_schedule_id, course_id, `color:${selected_color}`);
 }
 
 /* schedule data manipulation *****************************************************************************************/
@@ -250,6 +302,7 @@ function removeCourseFromSchedule(schedule_id, course_id) { /* data: remove cour
 
             delete schedule.data[course_id];
             storeScheduleList();
+            updateScheduleView(schedule_id);
             $(`#course-view-${course_id}`).remove();
 
             break;
