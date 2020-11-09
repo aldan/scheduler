@@ -13,6 +13,7 @@ dist/
 docs/_build/
 docs/locale/
 node_modules/
+staticfiles/
 tests/coverage_html/
 tests/.coverage
 tests/report/
