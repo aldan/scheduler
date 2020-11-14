@@ -496,6 +496,17 @@ $(document).ready(() => {
         selectSchedule(1);
     }
 
+    { /* shadow on scroll (timetable header) */
+        $('.timetable-box').on('scroll', () => {
+
+            if ($('.timetable-box').scrollTop()) {
+                $('.timetable-header').addClass('timetable-header-shadow');
+            } else {
+                $('.timetable-header').removeClass('timetable-header-shadow');
+            }
+        });
+    }
+
     $('#course-selector').autocomplete({ /* autocomplete for course selector */
         autoFocus: true,
         delay: 100,

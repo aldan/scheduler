@@ -42,19 +42,23 @@
 {% endblock %}
 
 {% block content %}
+
+    <header class="header">
+        <div class="header-title-container">
+            <span class="header-app-title">Scheduler</span>
+            <span class="header-semester-title">{{ name }}</span>
+        </div>
+    </header>
+
     <div class="container">
         <div class="section sidebar">
-            <h1 class="sidebar-header">Scheduler</h1>
-            <div class="textbox">
-                <div>Current semester: {{ name }}</div>
-            </div>
             <div class="schedule-select">
                 <select id="schedule-selector" type="text">
                     <option value="1" selected>Default</option>
                 </select>
             </div>
             <div class="course-select">
-                <input id="course-selector" type="" placeholder="Type in course code">
+                <input id="course-selector" placeholder="Type in course code">
             </div>
             <div class="course-list">
                 <div id="course-list-view"></div>
@@ -65,6 +69,7 @@
         </div>
         <div class="section timetable">
             <div class="timetable-view">
+                <div class="timetable-online-course-list"></div>
                 <table class="timetable-header">
                     <tr>
                         <th class="timetable-time"></th>
@@ -75,6 +80,7 @@
                         <th class="timetable-workday">Friday</th>
                         <th class="timetable-weekend">Saturday</th>
                         <th class="timetable-weekend sunday">Sunday</th>
+                        <th style="width: 1em;"></th>
                     </tr>
                 </table>
 
