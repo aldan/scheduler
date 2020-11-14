@@ -272,6 +272,7 @@ body {
     flex: 0 0 4em;
 
     display: flex;
+    justify-content: flex-start;
 
     background: var(--background);
     border-bottom: solid 1px var(--border);
@@ -300,6 +301,17 @@ body {
     background: var(--background-light);
     color: var(--text-alt);
     border-radius: 0.25em;
+}
+
+.header-menu {
+    margin-left: auto;
+    margin-right: 1em;
+    display: flex;
+    align-items: center;
+}
+
+.header-menu-item {
+    margin: auto 0.5em auto 0.5em;
 }
 
 /* Sidebar Styles *****************************************************************************************************/
