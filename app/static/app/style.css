@@ -217,17 +217,17 @@ body.dark-theme {
     z-index: 1000;
     float: left;
     display: none;
-    min-width: 160px;
-    padding: 4px 0;
-    margin: 0 0 10px 25px;
+    min-width: 5em;
+    padding: 0.25em 0;
+    margin: 0 0 0.5em 1.5em;
     list-style: none;
     background: var(--background);
     border: none;
     border-radius: .5em;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, .2);
+    box-shadow: 0 0.5em 1em rgba(0, 0, 0, .2);
     background-clip: padding-box;
-    *border-right-width: 2px;
-    *border-bottom-width: 2px;
+    *border-right-width: 0.125em;
+    *border-bottom-width: 0.125em;
 }
 
 .ui-menu-item {
@@ -299,7 +299,7 @@ body {
 /* Scrollbar Styles ***************************************************************************************************/
 
 ::-webkit-scrollbar {
-    width: 6px;
+    width: 0.4em;
 }
 
 ::-webkit-scrollbar-track {
@@ -308,7 +308,7 @@ body {
 
 ::-webkit-scrollbar-thumb {
     background: var(--scrollbar-t);
-    border-radius: 3px;
+    border-radius: 0.2em;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -439,7 +439,7 @@ body {
     width: 90%;
     margin-bottom: 1vh;
     border-radius: .25em;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, .1);
+    box-shadow: 0 0.25em 0.5em rgba(0, 0, 0, .1);
 }
 
 .course-view-header {
@@ -461,7 +461,7 @@ body {
 
 .course-view-remove:hover {
     background: rgba(0, 0, 0, .1);
-    box-shadow: 0 3px 5px rgba(0, 0, 0, .2);
+    box-shadow: 0 0.2em 0.4em rgba(0, 0, 0, .2);
 }
 
 .course-view-content {
@@ -495,7 +495,7 @@ body {
     background: var(--background);
     border-radius: .5em;
     padding: .25em .25em .25em .25em;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, .2);
+    box-shadow: 0 0.5em 1em rgba(0, 0, 0, .2);
     z-index: 0;
     transition: opacity 0.25s;
     transition-delay: 0.1s;
@@ -573,7 +573,7 @@ body {
     background: var(--background);
     border-radius: .5em;
     padding: .5em .5em .5em .5em;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, .2);
+    box-shadow: 0 0.5em 1em rgba(0, 0, 0, .2);
     max-height: 20vh;
     overflow-y: auto;
     z-index: 0;
@@ -698,14 +698,15 @@ table {
 }
 
 .timetable-time {
-    width: 60px;
-    font-size: 0.8em;
-    font-weight: normal;
+    position: relative;
+    width: 3.75em;
+    top: -0.8em;
+
     color: var(--text-light);
     text-align: center;
+    font-size: 0.8em;
+    font-weight: normal;
     border: 0;
-    position: relative;
-    top: -0.8em;
 }
 
 .timetable-weekend {
@@ -724,7 +725,7 @@ td {
     position: relative;
     text-align: center;
     vertical-align: top;
-    height: 40px;
+    height: 2.5em;
     width: auto;
     border-bottom: 1px solid var(--border);
     border-right: 1px solid var(--border);
@@ -752,5 +753,5 @@ tr.timetable-last td {
     z-index: 3;
     padding: 0.5em;
     overflow-x: hidden;
-    border-radius: 2px;
+    border-radius: 0.125em;
 }
