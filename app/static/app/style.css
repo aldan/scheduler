@@ -206,6 +206,51 @@ body.dark-theme {
     background: #795548 !important;
 }
 
+/* Autocomplete Styles (jQuery UI) ************************************************************************************/
+
+.ui-autocomplete {
+    position: absolute;
+    overflow-y: auto;
+    max-height: 40vh;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    float: left;
+    display: none;
+    min-width: 160px;
+    padding: 4px 0;
+    margin: 0 0 10px 25px;
+    list-style: none;
+    background: var(--background);
+    border: none;
+    border-radius: .5em;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, .2);
+    background-clip: padding-box;
+    *border-right-width: 2px;
+    *border-bottom-width: 2px;
+}
+
+.ui-menu-item {
+    padding: .25em .5em 0 .5em;
+    color: var(--text);
+    background: var(--background);
+    white-space: nowrap;
+}
+
+.ui-menu-item > div {
+    padding: 0 .25em 0 .25em;
+}
+
+.ui-state-hover, .ui-state-active {
+    border-radius: .25em;
+    color: var(--text-alt);
+    background: var(--background-light);
+}
+
+.ui-helper-hidden-accessible {
+    display: none;
+}
+
 /* Base Styles ********************************************************************************************************/
 
 * {
@@ -245,6 +290,10 @@ body {
 
 .loading-string::after {
     content: ".";
+}
+
+.bottom-shadow {
+    box-shadow: 0 0.5em 0.5em rgba(0, 0, 0, .1), 0 0.25em 0.25em rgba(0, 0, 0, .05);
 }
 
 /* Scrollbar Styles ***************************************************************************************************/
@@ -314,6 +363,12 @@ body {
     margin: auto 0.5em auto 0.5em;
 }
 
+#theme-toggle {
+    color: var(--text);
+    cursor: pointer;
+    text-decoration: underline;
+}
+
 /* Sidebar Styles *****************************************************************************************************/
 
 .sidebar {
@@ -336,70 +391,9 @@ body {
 }
 
 .course-select {
-    margin: 1em 0 1em 0;
+    padding: 1em 0 1em 0;
+    z-index: 10;
 }
-
-.course-list {
-    margin: 0 0 2vh 0;
-    overflow-x: hidden;
-}
-
-.footer {
-    margin: auto 0 1em 0;
-}
-
-#theme-toggle {
-    color: var(--text);
-    cursor: pointer;
-    text-decoration: underline;
-}
-
-/* Autocomplete Styles ************************************************************************************************/
-
-.ui-autocomplete {
-    position: absolute;
-    overflow-y: auto;
-    max-height: 40vh;
-    top: 100%;
-    left: 0;
-    z-index: 1000;
-    float: left;
-    display: none;
-    min-width: 160px;
-    padding: 4px 0;
-    margin: 0 0 10px 25px;
-    list-style: none;
-    background: var(--background);
-    border: none;
-    border-radius: .5em;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, .2);
-    background-clip: padding-box;
-    *border-right-width: 2px;
-    *border-bottom-width: 2px;
-}
-
-.ui-menu-item {
-    padding: .25em .5em 0 .5em;
-    color: var(--text);
-    background: var(--background);
-    white-space: nowrap;
-}
-
-.ui-menu-item > div {
-    padding: 0 .25em 0 .25em;
-}
-
-.ui-state-hover, .ui-state-active {
-    border-radius: .25em;
-    color: var(--text-alt);
-    background: var(--background-light);
-}
-
-.ui-helper-hidden-accessible {
-    display: none;
-}
-
-/* Course list Styles *************************************************************************************************/
 
 #course-selector {
     width: 60%;
@@ -417,11 +411,23 @@ body {
     border-bottom: solid 2px var(--text);
 }
 
+.footer {
+    margin: auto 0 1em 0;
+}
+
+/* Course list Styles *************************************************************************************************/
+
+.course-list {
+    max-height: 70%;
+    margin: 0 0 2vh 0;
+    overflow-x: hidden;
+}
+
 #course-list-view {
     display: flex;
     flex-direction: column;
     align-items: center;
-    max-height: 50vh;
+    height: 100%;
     overflow-y: scroll;
     overflow-x: hidden;
 }
@@ -671,10 +677,6 @@ table {
 .timetable-header {
     flex: 0 0 3em;
     z-index: 5;
-}
-
-.timetable-header-shadow {
-    box-shadow: 0 0.5em 0.5em rgba(0, 0, 0, .1), 0 0.25em 0.25em rgba(0, 0, 0, .05);
 }
 
 .timetable-header tr {
