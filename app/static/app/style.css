@@ -206,108 +206,7 @@ body.dark-theme {
     background: #795548 !important;
 }
 
-/* Base Styles ********************************************************************************************************/
-
-* {
-    box-sizing: border-box;
-}
-
-html {
-    height: 100%;
-}
-
-body {
-    background: var(--background);
-    color: var(--text);
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    width: 100%;
-    font-family: 'Work Sans', sans-serif;
-}
-
-.container {
-    display: flex;
-    height: 100%;
-    align-items: center;
-    z-index: 2;
-}
-
-.section {
-    margin: 0 10vh 0 0;
-    box-shadow: 0 30px 50px rgba(0, 0, 0, .2), 0 4px 8px rgba(0, 0, 0, .1);
-}
-
-.loading-string::after {
-    content: ".";
-}
-
-/* Scrollbar Styles ***************************************************************************************************/
-
-::-webkit-scrollbar {
-    width: 6px;
-}
-
-::-webkit-scrollbar-track {
-    background: var(--background);
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--scrollbar-t);
-    border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--scrollbar-th);
-}
-
-/* Sidebar Styles *****************************************************************************************************/
-
-.sidebar {
-    display: flex;
-    flex: 1 0 300px;
-    height: 100%;
-    background: var(--background);
-    color: var(--text);
-    z-index: 10;
-    overflow: auto;
-    flex-direction: column;
-    text-align: center;
-}
-
-.sidebar-header {
-    margin: 10vh 0 2vh 0;
-}
-
-.textbox {
-    color: var(--text);
-    margin: 0 0 3vh 0;
-}
-
-#schedule-selector {
-    display: none;
-}
-
-.course-select {
-    margin: 0 0 2vh 0;
-}
-
-.course-list {
-    margin: 0 0 2vh 0;
-    overflow-x: hidden;
-}
-
-.footer {
-    margin: auto 0 1em 0;
-}
-
-#theme-toggle {
-    color: var(--text);
-    cursor: pointer;
-    text-decoration: underline;
-}
-
-/* Autocomplete Styles ************************************************************************************************/
+/* Autocomplete Styles (jQuery UI) ************************************************************************************/
 
 .ui-autocomplete {
     position: absolute;
@@ -318,17 +217,17 @@ body {
     z-index: 1000;
     float: left;
     display: none;
-    min-width: 160px;
-    padding: 4px 0;
-    margin: 0 0 10px 25px;
+    min-width: 5em;
+    padding: 0.25em 0;
+    margin: 0 0 0.5em 1.5em;
     list-style: none;
     background: var(--background);
     border: none;
     border-radius: .5em;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, .2);
+    box-shadow: 0 0.5em 1em rgba(0, 0, 0, .2);
     background-clip: padding-box;
-    *border-right-width: 2px;
-    *border-bottom-width: 2px;
+    *border-right-width: 0.125em;
+    *border-bottom-width: 0.125em;
 }
 
 .ui-menu-item {
@@ -352,7 +251,149 @@ body {
     display: none;
 }
 
-/* Course list Styles *************************************************************************************************/
+/* Base Styles ********************************************************************************************************/
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+
+    display: flex;
+    flex-flow: column nowrap;
+
+    font-family: 'Work Sans', sans-serif;
+    background: var(--background);
+    color: var(--text);
+}
+
+.container {
+    flex: 1 1 auto;
+
+    display: flex;
+    min-height: 0; /* does not shrink properly if removed */
+    /*align-items: center;*/
+}
+
+.section {
+    /*margin: 0 10vh 0 0;*/
+    /*box-shadow: 0 30px 50px rgba(0, 0, 0, .2), 0 4px 8px rgba(0, 0, 0, .1);*/
+}
+
+.loading-string::after {
+    content: ".";
+}
+
+.bottom-shadow {
+    box-shadow: 0 0.5em 0.5em rgba(0, 0, 0, .1), 0 0.25em 0.25em rgba(0, 0, 0, .05);
+}
+
+/* Scrollbar Styles ***************************************************************************************************/
+
+::-webkit-scrollbar {
+    width: 0.4em;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-t);
+    border-radius: 0.2em;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-th);
+}
+
+/* Header Styles ***************************************************************************************************/
+
+.header {
+    flex: 0 0 4em;
+
+    display: flex;
+    justify-content: flex-start;
+
+    background: var(--background);
+    border-bottom: solid 1px var(--border);
+}
+
+.header-title-container {
+    width: 18em;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.header-app-title {
+    margin-right: 0.25em;
+
+    font-size: 1.5em;
+    font-weight: 300;
+    color: var(--text);
+}
+
+.header-semester-title {
+    margin-top: 0.25em;
+    padding: 0 0.25em 0 0.25em;
+
+    background: var(--background-light);
+    color: var(--text-alt);
+    border-radius: 0.25em;
+}
+
+.header-menu {
+    margin-left: auto;
+    margin-right: 1em;
+    display: flex;
+    align-items: center;
+}
+
+.header-menu-item {
+    margin: auto 0.5em auto 0.5em;
+}
+
+#theme-toggle {
+    color: var(--text);
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+/* Sidebar Styles *****************************************************************************************************/
+
+.sidebar {
+    flex: 0 0 18em;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+
+    background: var(--background);
+    color: var(--text);
+    border-right: solid 1px var(--border);
+    z-index: 10;
+    overflow: auto;
+}
+
+#schedule-selector {
+    display: none;
+}
+
+.course-select {
+    padding: 1em 0 1em 0;
+    z-index: 10;
+}
 
 #course-selector {
     width: 60%;
@@ -370,11 +411,23 @@ body {
     border-bottom: solid 2px var(--text);
 }
 
+.footer {
+    margin: auto 0 1em 0;
+}
+
+/* Course list Styles *************************************************************************************************/
+
+.course-list {
+    max-height: 70%;
+    margin: 0 0 2vh 0;
+    overflow-x: hidden;
+}
+
 #course-list-view {
     display: flex;
     flex-direction: column;
     align-items: center;
-    max-height: 50vh;
+    height: 100%;
     overflow-y: scroll;
     overflow-x: hidden;
 }
@@ -386,7 +439,7 @@ body {
     width: 90%;
     margin-bottom: 1vh;
     border-radius: .25em;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, .1);
+    box-shadow: 0 0.25em 0.5em rgba(0, 0, 0, .1);
 }
 
 .course-view-header {
@@ -408,7 +461,7 @@ body {
 
 .course-view-remove:hover {
     background: rgba(0, 0, 0, .1);
-    box-shadow: 0 3px 5px rgba(0, 0, 0, .2);
+    box-shadow: 0 0.2em 0.4em rgba(0, 0, 0, .2);
 }
 
 .course-view-content {
@@ -442,7 +495,7 @@ body {
     background: var(--background);
     border-radius: .5em;
     padding: .25em .25em .25em .25em;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, .2);
+    box-shadow: 0 0.5em 1em rgba(0, 0, 0, .2);
     z-index: 0;
     transition: opacity 0.25s;
     transition-delay: 0.1s;
@@ -461,7 +514,7 @@ body {
     height: 1em;
     width: 1em;
     margin: auto;
-    color: rgba(255,255,255,1);
+    color: rgba(255, 255, 255, 1);
     border: 1px solid var(--transparent-10);
     border-radius: 1em;
     transition: all 0.2s;
@@ -520,7 +573,7 @@ body {
     background: var(--background);
     border-radius: .5em;
     padding: .5em .5em .5em .5em;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, .2);
+    box-shadow: 0 0.5em 1em rgba(0, 0, 0, .2);
     max-height: 20vh;
     overflow-y: auto;
     z-index: 0;
@@ -602,25 +655,38 @@ table {
 }
 
 .timetable {
-    flex: 9 0 auto;
-    height: 80vh;
-    width: 60vw;
-    min-width: 700px;
-    border-radius: .5em;
+    flex: 1 1 auto;
+    min-width: 40em;
 }
 
 .timetable-view {
+    display: flex;
+    flex-flow: column nowrap;
+
     height: 100%;
     margin: 0 auto;
-    padding-right: 1em;
+}
+
+.timetable-online-course-list {
+    /*display: flex;*/
+    display: none;
+    flex: 0 0 5em;
+    border-bottom: solid 1px var(--border);
 }
 
 .timetable-header {
-    height: 40px;
+    flex: 0 0 3em;
+    z-index: 5;
+}
+
+.timetable-header tr {
+    height: 3em;
 }
 
 .timetable-box {
-    height: 94%;
+    flex: 1 1 auto;
+    margin: 0 1em 0em 0;
+
     overflow-x: hidden;
     overflow-y: scroll;
     -ms-overflow-style: none;
@@ -632,14 +698,15 @@ table {
 }
 
 .timetable-time {
-    width: 60px;
-    font-size: 0.8em;
-    font-weight: normal;
+    position: relative;
+    width: 3.75em;
+    top: -0.8em;
+
     color: var(--text-light);
     text-align: center;
+    font-size: 0.8em;
+    font-weight: normal;
     border: 0;
-    position: relative;
-    top: -0.8em;
 }
 
 .timetable-weekend {
@@ -650,11 +717,15 @@ table {
     display: none;
 }
 
+th {
+    font-weight: 500;
+}
+
 td {
     position: relative;
     text-align: center;
     vertical-align: top;
-    height: 40px;
+    height: 2.5em;
     width: auto;
     border-bottom: 1px solid var(--border);
     border-right: 1px solid var(--border);
@@ -679,8 +750,8 @@ tr.timetable-last td {
     color: var(--text-alt);
     text-align: left;
     font-size: 0.9em;
-    z-index: 10;
+    z-index: 3;
     padding: 0.5em;
     overflow-x: hidden;
-    border-radius: 2px;
+    border-radius: 0.125em;
 }

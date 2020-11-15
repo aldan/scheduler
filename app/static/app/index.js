@@ -228,7 +228,7 @@ function updateColorPalettePosition(element) { /* ui fix: prevents selectX-optio
         elem_left = elem_pos.left,
         font_size = parseFloat($('body').css('font-size'));
 
-    $(`.course-color-select-palette`, element).css({top: elem_top + font_size, left: elem_left});
+    $(`.course-color-select-palette`, element).css({top: elem_top + font_size * 0.8, left: elem_left - font_size * 0.5});
 }
 
 function updateCourseSection(element) { /* ui: get selected sections from view and call addCourseToSchedule() */
@@ -494,6 +494,28 @@ $(document).ready(() => {
 
         console.log(scheduleList);
         selectSchedule(1);
+    }
+
+    { /* shadow on scroll (timetable header) */
+        $('.timetable-box').on('scroll', () => {
+
+            if ($('.timetable-box').scrollTop()) {
+                $('.timetable-header').addClass('bottom-shadow');
+            } else {
+                $('.timetable-header').removeClass('bottom-shadow');
+            }
+        });
+    }
+
+    { /* shadow on scroll (course select) */
+        $('#course-list-view').on('scroll', () => {
+
+            if ($('#course-list-view').scrollTop()) {
+                $('.course-select').addClass('bottom-shadow');
+            } else {
+                $('.course-select').removeClass('bottom-shadow');
+            }
+        });
     }
 
     $('#course-selector').autocomplete({ /* autocomplete for course selector */
