@@ -386,20 +386,51 @@ body {
     overflow: auto;
 }
 
-#schedule-selector {
-    display: none;
+.sidebar-header {
+    display: flex;
+    padding: 1em 1em 1em 1em;
+    flex-flow: row nowrap;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.schedule-select {
+    flex: 2 1 7em;
+    margin-right: 0.5em;
 }
 
 .course-select {
-    padding: 1em 0 1em 0;
-    z-index: 10;
+    flex: 3 1 auto;
+}
+
+#schedule-selector {
+    width: 100%;
+    height: 1.5em;
+
+    outline: none;
+    font: inherit;
+    font-size: 0.8em;
+
+    background: var(--course-card);
+    color: var(--text);
+
+    border-radius: 0.25em;
+    border: solid 1px var(--border);
+}
+
+#schedule-selector option {
+    background: var(--course-card);
+}
+
+#schedule-selector option:checked {
+    background: var(--course-section-selected);
 }
 
 #course-selector {
-    width: 60%;
+    width: 100%;
     height: 2em;
     border: none;
-    outline: 0;
+    outline: none;
     color: var(--text);
     border-bottom: solid 2px var(--background-light);
     background: var(--background);
@@ -411,7 +442,7 @@ body {
     border-bottom: solid 2px var(--text);
 }
 
-.footer {
+.sidebar-footer {
     margin: auto 0 1em 0;
 }
 

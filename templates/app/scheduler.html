@@ -9,7 +9,13 @@
             semester_code = '{{ code }}',
             semester_last_update_dt = '{{ update_dt }}';
 
-        let scheduleList = [{'id': '1', 'name': 'Default', 'data': {}}],
+        let scheduleList = [
+                {'id': '1', 'name': 'Schedule 1', 'data': {}},
+                {'id': '2', 'name': 'Schedule 2', 'data': {}},
+                {'id': '3', 'name': 'Schedule 3', 'data': {}},
+                {'id': '4', 'name': 'Schedule 4', 'data': {}},
+                {'id': '5', 'name': 'Schedule 5', 'data': {}}
+            ],
             generic_color_set = {
                 'D50000': 0, // Tomato
                 'E67C73': 0, // Flamingo
@@ -55,18 +61,24 @@
 
     <div class="container">
         <div class="section sidebar">
-            <div class="schedule-select">
-                <select id="schedule-selector" type="text">
-                    <option value="1" selected>Default</option>
-                </select>
-            </div>
-            <div class="course-select">
-                <input id="course-selector" placeholder="Type in course code">
+            <div class="sidebar-header">
+                <div class="sidebar-header-item schedule-select">
+                    <select id="schedule-selector" type="text">
+                        <option value="1" selected>Schedule 1</option>
+                        <option value="2">Schedule 2</option>
+                        <option value="3">Schedule 3</option>
+                        <option value="4">Schedule 4</option>
+                        <option value="5">Schedule 5</option>
+                    </select>
+                </div>
+                <div class="sidebar-header-item course-select">
+                    <input id="course-selector" placeholder="Type in course code">
+                </div>
             </div>
             <div class="course-list">
                 <div id="course-list-view"></div>
             </div>
-            <div class="footer">
+            <div class="sidebar-footer">
             </div>
         </div>
         <div class="section timetable">

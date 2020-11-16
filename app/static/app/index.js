@@ -34,6 +34,8 @@ function selectSchedule(id) { /* ui: load courses from schedule with id and call
         return sch.id === id.toString();
     })[0];
 
+    localStorage.setItem('lastActiveSchedule', id);
+
     const data = schedule.data;
     $('.course-view').remove();
 
@@ -228,7 +230,10 @@ function updateColorPalettePosition(element) { /* ui fix: prevents selectX-optio
         elem_left = elem_pos.left,
         font_size = parseFloat($('body').css('font-size'));
 
-    $(`.course-color-select-palette`, element).css({top: elem_top + font_size * 0.8, left: elem_left - font_size * 0.5});
+    $(`.course-color-select-palette`, element).css({
+        top: elem_top + font_size * 0.8,
+        left: elem_left - font_size * 0.5
+    });
 }
 
 function updateCourseSection(element) { /* ui: get selected sections from view and call addCourseToSchedule() */
@@ -380,7 +385,7 @@ function storeCourseData(id, data) { /* data: store course data in localStorage 
                 case 'S':
                     days[5] = 1;
                 default:
-                // skip
+                    alert(`Error while parsing data: section.DAYS not recognized`);
             }
         }
 
@@ -482,7 +487,8 @@ $(document).ready(() => {
     }
 
     { /* load scheduleList from local storage and load default schedule */
-        const schedules = localStorage.getItem('scheduleList');
+        const schedules = localStorage.getItem('scheduleList'),
+            lastActiveSchedule = localStorage.getItem('lastActiveSchedule');
 
         if (!schedules) {
             localStorage.setItem('scheduleList', JSON.stringify(scheduleList));
@@ -493,7 +499,20 @@ $(document).ready(() => {
         }
 
         console.log(scheduleList);
-        selectSchedule(1);
+
+        if (!lastActiveSchedule) {
+            selectSchedule(1);
+        } else {
+            selectSchedule(lastActiveSchedule);
+            document.getElementById('schedule-selector').value = lastActiveSchedule;
+        }
+    }
+
+    {
+        $('#schedule-selector').on('change', () => {
+            const selectedSchedule = document.getElementById('schedule-selector').value;
+            selectSchedule(selectedSchedule);
+        });
     }
 
     { /* shadow on scroll (timetable header) */
@@ -511,9 +530,9 @@ $(document).ready(() => {
         $('#course-list-view').on('scroll', () => {
 
             if ($('#course-list-view').scrollTop()) {
-                $('.course-select').addClass('bottom-shadow');
+                $('.sidebar-header').addClass('bottom-shadow');
             } else {
-                $('.course-select').removeClass('bottom-shadow');
+                $('.sidebar-header').removeClass('bottom-shadow');
             }
         });
     }
