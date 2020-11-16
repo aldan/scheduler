@@ -699,10 +699,28 @@ table {
 }
 
 .timetable-online-course-list {
-    /*display: flex;*/
     display: none;
+    /*display: flex;*/
     flex: 0 0 5em;
+    flex-flow: row nowrap;
+    align-items: stretch;
+    justify-content: flex-start;
+    padding: 0.5em;
+
     border-bottom: solid 1px var(--border);
+}
+
+.online-event-card {
+    padding: 0.5em;
+    margin-right: 0.5em;
+
+    font-size: 0.9em;
+    text-align: left;
+    overflow-x: hidden;
+    border-radius: 0.125em;
+
+    background: var(--event);
+    color: var(--text-alt);
 }
 
 .timetable-header {

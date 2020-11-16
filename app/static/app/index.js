@@ -75,6 +75,8 @@ function updateScheduleView(id) { /* ui: add events from schedule with id, call 
 
     const data = schedule.data;
     $('.event').remove();
+    $('.online-event-card').remove();
+    $('.timetable-online-course-list').hide();
 
     for (const course in data) {
 
@@ -106,6 +108,16 @@ function addEventToView(section, selected_section, course_data, course_abbr, col
 
     for (let day = 0; day < 7; day++) {
         if (section_data.days[day]) {
+            if (day === 5 && slot >= 46) { /* day is saturday and time >= 23:00 */
+                $(`.timetable-online-course-list`).css('display', 'flex');
+                $(`.timetable-online-course-list`).append(`
+                    <div class="online-event-card ${color_class}">
+                        <b>${course_abbr}: ${selected_section}</b><br>
+                        <span style="color: rgba(255,255,255,.8)">Online</span>
+                    </div>
+                `);
+                continue;
+            }
             $(`.timetable-box table tr:eq(${slot - 13}) td:eq(${day + 1})`).append(`
                 <div class="event ${color_class}" style="height: ${100 * slot_len}%">
                     <b>${course_abbr}: ${selected_section}</b><br>
