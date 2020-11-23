@@ -7,6 +7,7 @@ from .models import Semester
 
 
 def startpage(req):
+    return HttpResponse('')
     if req.COOKIES.get('isStarted'):
         return HttpResponseRedirect(reverse(app))
 
@@ -19,8 +20,8 @@ def startpage(req):
 
 
 def app(req):
-    if not req.COOKIES.get('isStarted'):
-        return HttpResponseRedirect(reverse(startpage))
+    # if not req.COOKIES.get('isStarted'):
+    #     return HttpResponseRedirect(reverse(startpage))
 
     semester = Semester.objects.last()
     semester_name = getattr(semester, 'semester_name')

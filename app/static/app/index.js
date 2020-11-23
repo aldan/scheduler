@@ -452,8 +452,11 @@ function storeCourseData(id, data) { /* data: store course data in localStorage 
                     break;
                 case 'S':
                     days[5] = 1;
+                    break;
+                case ' ':
+                    break;
                 default:
-                    alert(`Error while parsing data: section.DAYS not recognized`);
+                    console.log(`Error while parsing data: section.DAYS not recognized`);
             }
         }
 
