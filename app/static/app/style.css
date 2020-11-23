@@ -24,6 +24,10 @@ body {
     --scrollbar: #fff;
     --scrollbar-t: rgba(0, 0, 0, .2);
     --scrollbar-th: rgba(0, 0, 0, .25);
+
+    --warning-background: rgba(200, 30, 30, 0.5);
+    --warning-text: rgba(255, 255, 255, 1);
+
     transition: all 0.5s;
 }
 
@@ -50,6 +54,10 @@ body.dark-theme {
     --scrollbar: #000;
     --scrollbar-t: rgba(255, 255, 255, .2);
     --scrollbar-th: rgba(255, 255, 255, .25);
+
+    --warning-background: rgba(150, 30, 30, 0.5);
+    --warning-text: rgba(255, 255, 255, 0.5);
+
     transition: all 0.5s;
 }
 
@@ -78,6 +86,10 @@ body.dark-theme {
         --scrollbar: #000;
         --scrollbar-t: rgba(255, 255, 255, .2);
         --scrollbar-th: rgba(255, 255, 255, .25);
+
+        --warning-background: rgba(150, 30, 30, 0.5);
+        --warning-text: rgba(255, 255, 255, 0.5);
+
         transition: all 0.5s;
     }
 
@@ -104,6 +116,10 @@ body.dark-theme {
         --scrollbar: #fff;
         --scrollbar-t: rgba(0, 0, 0, .2);
         --scrollbar-th: rgba(0, 0, 0, .25);
+
+        --warning-background: rgba(200, 30, 30, 0.5);
+        --warning-text: rgba(255, 255, 255, 1);
+
         transition: all 0.5s;
     }
 }
@@ -628,6 +644,13 @@ body {
     transition: all 0.2s;
 }
 
+.course-section-selectX-option.disabled,
+.course-section-selectX-option.disabled:hover {
+    cursor: not-allowed;
+    background: var(--warning-background);
+    color: var(--warning-text);
+}
+
 .course-section-selectX-option.selectedX {
     background: var(--course-section-selected);
 }
@@ -651,7 +674,7 @@ body {
 }
 
 .course-section-selectX-option-time {
-    color: var(--text-light);
+    /*color: var(--text-light);*/
     margin-right: .5em;
 }
 

@@ -118,6 +118,7 @@ function addEventToView(section, selected_section, course_data, course_abbr, col
                 `);
                 continue;
             }
+
             $(`.timetable-box table tr:eq(${slot - 13}) td:eq(${day + 1})`).append(`
                 <div class="event ${color_class}" style="height: ${100 * slot_len}%">
                     <b>${course_abbr}: ${selected_section}</b><br>
@@ -197,7 +198,8 @@ function addCourseView(id) { /* ui: add course to the list on sidebar */
             $(`#course-section-select-${id}-${section_name}`).append(`<option value="${slot.code}">${slot.code}</option>`);
             $(`#course-section-selectX-${id}-${section_name} .course-section-selectX-options`).append(`
                 <div class="course-section-selectX-option" id="course-section-selectX-option-${id}-${section_name}-${slot.code}"
-                onclick="updateCourseSectionCC('${id}','${section_name}','${slot.code}', this)">
+                onclick="updateCourseSectionCC('${id}','${section_name}','${slot.code}', this)" data-days="${slot.days}"
+                data-starttime="${slot.starttime}" data-endtime="${slot.endtime}">
                     <div class="course-section-selectX-option-top">
                         <b class="course-section-selectX-option-name">${slot.code}</b>
                         <span class="course-section-selectX-option-time">
@@ -224,15 +226,65 @@ function addCourseView(id) { /* ui: add course to the list on sidebar */
 
 function updateSelectXPosition(element) { /* ui fix: prevents selectX-options offset from selectX */
 
-    let selectX_pos = $(element).position(),
+    const selectX_pos = $(element).position(),
         selectX_top = selectX_pos.top,
         selectX_left = selectX_pos.left,
-        font_size = parseFloat($('body').css('font-size'));
+        font_size = parseFloat($('body').css('font-size')),
+        selectX_id = $(element).attr('id'),
+        selectX_cid = selectX_id.substring(23);
 
-    // console.log(`selectX position: top: ${selectX_top}, left: ${selectX_left}`);
-
-    // $(`.course-section-selectX-options`, element).css({top: selectX_top + font_size * 1.2, left: selectX_left});
     $(`.course-section-selectX-options`, element).css({top: selectX_top + font_size, left: selectX_left});
+
+    const schedule_id = $('#schedule-selector option:selected').val(),
+        schedule = scheduleList.filter((sch) => {
+            return sch.id === schedule_id.toString();
+        })[0];
+    const schedule_data = schedule.data;
+
+    let timings = [], cur = 0;
+    for (const course in schedule_data) {
+        const sections = schedule_data[course],
+            course_data = getCourseData(course);
+
+        for (const section in sections) {
+            if (section === 'color') continue;
+            if (selectX_cid === `${course}-${section}`) continue;
+
+            const selected_section = sections[section];
+            const section_data = course_data[section].filter((sec) => {
+                return sec.code === selected_section;
+            })[0];
+            timings[cur++] = [section_data.starttime, section_data.endtime, section_data.days];
+        }
+    }
+
+    const checkIntersections = (a1, a2, b1, b2) => {
+
+        if (a1 <= b2 && b1 <= a2) return 1;
+        return 0;
+    }
+
+    $(`.course-section-selectX-options > .course-section-selectX-option`, element).each(function () {
+
+        $(this).removeClass('disabled');
+
+        const starttime = $(this).data('starttime'),
+            endtime = $(this).data('endtime'),
+            days = JSON.parse(`[${$(this).data('days')}]`);
+
+        if (starttime >= 1380) return;
+
+        for (let day = 0; day < 6; day++) {
+            if (!days[day]) continue;
+
+            for (let i = 0; i < cur; i++) {
+                if (timings[i][2][day] && checkIntersections(starttime, endtime, timings[i][0], timings[i][1])) {
+                    $(this).addClass('disabled');
+                    return;
+                }
+            }
+        }
+    });
 }
 
 function updateColorPalettePosition(element) { /* ui fix: prevents selectX-options offset from selectX */
@@ -260,6 +312,10 @@ function updateCourseSection(element) { /* ui: get selected sections from view a
 
 function updateCourseSectionCC(course_id, section, selected_section, elem) { /* ui: updateCourseSection() for selectX */
 
+    if ($(elem).hasClass('disabled')) {
+        console.log('updateCourseSectionCC: option not available');
+        return;
+    }
     const selected_schedule_id = $('#schedule-selector option:selected').val();
 
     $(`#course-section-selectX-${course_id}-${section} div:eq(0)`).text(selected_section);
