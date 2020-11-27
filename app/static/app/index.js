@@ -527,31 +527,31 @@ $(document).ready(() => {
             toggle = document.getElementById('theme-toggle');
 
         if ($('body').hasClass('dark-theme')) {
-            toggle.innerHTML = 'light theme';
+            toggle.innerHTML = 'Light theme';
             console.log('user prefers dark theme');
         } else if (prefersDarkTheme.matches && !$('body').hasClass('light-theme')) {
-            toggle.innerHTML = 'light theme';
+            toggle.innerHTML = 'Light theme';
             console.log('user prefers dark theme');
         }
 
         toggle.addEventListener('click', () => {
             if (prefersDarkTheme.matches) {
                 document.body.classList.toggle('light-theme');
-                if (toggle.innerHTML === 'light theme') {
+                if (toggle.innerHTML === 'Light theme') {
                     setCookie('colorScheme', 'light', 365);
-                    toggle.innerHTML = 'dark theme';
+                    toggle.innerHTML = 'Dark theme';
                 } else {
                     setCookie('colorScheme', 'dark', 365);
-                    toggle.innerHTML = 'light theme';
+                    toggle.innerHTML = 'Light theme';
                 }
             } else {
                 document.body.classList.toggle('dark-theme');
-                if (toggle.innerHTML === 'dark theme') {
+                if (toggle.innerHTML === 'Dark theme') {
                     setCookie('colorScheme', 'dark', 365);
-                    toggle.innerHTML = 'light theme';
+                    toggle.innerHTML = 'Light theme';
                 } else {
                     setCookie('colorScheme', 'light', 365);
-                    toggle.innerHTML = 'dark theme';
+                    toggle.innerHTML = 'Dark theme';
                 }
             }
         });

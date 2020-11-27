@@ -48,14 +48,19 @@
 {% endblock %}
 
 {% block content %}
-
+    <div class="overlay" id="print-overlay">
+        <div class="overlay-header">Print mode</div>
+        <div class="overlay-content">Click anywhere to disable</div>
+    </div>
     <header class="header">
         <div class="header-title-container">
             <span class="header-app-title">Scheduler</span>
             <span class="header-semester-title">{{ name }}</span>
         </div>
         <div class="header-menu">
-            <div class="header-menu-item">Switch to <span id="theme-toggle">dark theme</span></div>
+            <div class="header-menu-item"><a href="https://github.com/aldan/scheduler" target="_blank">Github Repo</a></div>
+            <div class="header-menu-item" onclick="window.print()">Print</div>
+            <div class="header-menu-item"><span id="theme-toggle">Dark theme</span></div>
         </div>
     </header>
 
