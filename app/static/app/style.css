@@ -249,6 +249,11 @@ body.dark-theme {
         --event: rgba(80, 80, 80, 1) !important;
         --border: #eee !important;
     }
+
+    * {
+        -webkit-print-color-adjust: exact !important;
+        /*color-adjust: exact !important;*/
+    }
 }
 
 /* Autocomplete Styles (jQuery UI) ************************************************************************************/
@@ -423,6 +428,29 @@ body {
     border-radius: 0.25em;
 }
 
+.header-message-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-flow: column nowrap;
+}
+
+.header-message {
+    margin: auto 1em auto 1em;
+    border-radius: 0.25em;
+    background: var(--background);
+    padding: 0 0.5em 0 0.5em;
+}
+
+.header-message.warning {
+    color: #F6BF26;
+}
+
+.header-message.warning::before {
+    content: "⚠";
+    margin: auto 0.5em auto 0;
+}
+
 .header-menu {
     margin-left: auto;
     margin-right: 1em;
@@ -442,8 +470,10 @@ body {
 }
 
 .header-menu-item a {
+    color: var(--text);
     text-decoration: none;
 }
+
 .header-menu-item a:visited {
     color: var(--text);
     text-decoration: none;
@@ -560,7 +590,7 @@ body {
 
 .course-view-header {
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
 }
 
 .course-view-title {
