@@ -339,6 +339,21 @@ function updateCourseColor(course_id, selected_color, elem) { /* ui: updateCours
 
 /* schedule data manipulation *****************************************************************************************/
 
+function getSchedule(schedule_id) { /*returns schedule with schedule_id, if not specified - last selected is used */
+
+    if (!schedule_id) {
+        schedule_id = $('#schedule-selector option:selected').val();
+    }
+
+    if (typeof schedule_id !== "string") {
+        schedule_id = schedule_id.toString();
+    }
+
+    return scheduleList.filter((sch) => {
+        return sch.id === schedule_id;
+    })[0];
+}
+
 function addCourseToSchedule(schedule_id, course_id, course_section) { /* data: add/update course data in schedule */
 
     for (let schedule of scheduleList) {
@@ -518,6 +533,73 @@ function getCourseData(id) { /* data: try to get course data from local storage,
     return JSON.parse(data);
 }
 
+function syncCourseList(course_list, max_trials) {
+
+    if (!course_list.length) {
+        // alert('done');
+        return;
+    }
+
+    if (!max_trials || isNaN(max_trials) || max_trials < 1) {
+        max_trials = 3;
+    }
+
+    const course_id = course_list.shift(),
+        url = `/json?method=getCourseById&courseId=${course_id}&semesterId=${semester_code}`;
+
+    $.get(url, (course_data) => {
+        storeCourseData(course_id, course_data);
+        sync_progress++;
+        console.log(`course ${course_id} synced`);
+        console.log(course_data);
+        syncCourseList(course_list);
+    }).fail(() => {
+        if (max_trials === 1) {
+            return 0;
+        }
+        syncCourseList(course_list, 3);
+        syncCourseList([course_id], max_trials - 1);
+    });
+}
+
+function resync() {
+
+    let course_list = [];
+
+    for (let schedule_id = 1; schedule_id <= 5; schedule_id++) {
+        const schedule_data = getSchedule(schedule_id).data;
+        for (const course_id in schedule_data) {
+            course_list.push(course_id);
+        }
+    }
+
+    let course_set = new Set(course_list),
+        unique_course_list = Array.from(course_set),
+        sync_total = unique_course_list.length;
+
+    for (const item in localStorage) {
+        if (item.substring(0, 8) === 'CourseID') {
+            const course_id = item.substring(8);
+            if (!course_set.has(course_id)) {
+                localStorage.removeItem(item);
+            }
+        }
+    }
+
+    sync_progress = 0;
+    let sync_check_interval = setInterval(() => {
+        let message = `Syncing.. ${sync_progress}/${sync_total}`;
+        if (sync_progress === sync_total) {
+            message = `Synced successfully!`;
+            clearInterval(sync_check_interval);
+        }
+
+        $('#header-message').html(message);
+    }, 500);
+
+    syncCourseList(unique_course_list);
+}
+
 /* onReady ************************************************************************************************************/
 
 $(document).ready(() => {
@@ -555,6 +637,15 @@ $(document).ready(() => {
                 }
             }
         });
+    }
+
+    { /* check if schedule data is relevant for current semester */
+        const last_active_semester = localStorage.getItem('lastActiveSemester');
+
+        if (!last_active_semester || semester_name !== last_active_semester) {
+            localStorage.removeItem('scheduleList');
+            localStorage.setItem('lastActiveSemester', `${semester_name}`);
+        }
     }
 
     { /* load scheduleList from local storage and load default schedule */
