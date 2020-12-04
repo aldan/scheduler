@@ -95,7 +95,7 @@ class GetCourseList(CronJobBase):
         print('Updating data in the database')
 
         try:
-            Semester.objects.get(semester_code=last_semester_code).update(
+            Semester.objects.filter(semester_code=last_semester_code).update(
                 semester_data=last_semester_data,
                 last_update_datetime=timestamp
             )
