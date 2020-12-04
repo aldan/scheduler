@@ -2,8 +2,6 @@ import requests
 from django_cron import CronJobBase, Schedule
 from .models import Semester
 from django.utils import timezone
-from django.core.exceptions import ObjectDoesNotExist
-from django.db import Error
 
 
 class GetCourseList(CronJobBase):
@@ -94,27 +92,21 @@ class GetCourseList(CronJobBase):
 
         print('Updating data in the database')
 
+        semester_fields = {
+            'semester_name': last_semester_name,
+            'semester_code': last_semester_code,
+            'semester_data': last_semester_data,
+            'last_update_datetime': timestamp,
+        }
+
         try:
-            Semester.objects.filter(semester_code=last_semester_code).update(
-                semester_data=last_semester_data,
-                last_update_datetime=timestamp
-            )
-            print(f'Successfully updated Semester: {last_semester_name}')
-        except ObjectDoesNotExist:
-            print(f'Failed to update Semester: {last_semester_name}. Trying to create one..')
-            semester = Semester(
-                semester_name=last_semester_name,
+            semester, created = Semester.objects.update_or_create(
                 semester_code=last_semester_code,
-                semester_data=last_semester_data,
-                last_update_datetime=timestamp,
+                defaults=semester_fields
             )
-            try:
-                semester.save()
-                print(f'Successfully saved Semester: {last_semester_name}')
-            except Exception as Err:
-                print(f'Failed to save Semester: {last_semester_name}\n{Err.args[0]}')
+            print(f'Successfully {"created" if created else "updated"} Semester: {semester}')
         except Exception as Err:
-            print(f'Generic error occurred while accessing the database\n{Err.args[0]}')
+            print(f'Exception occurred while accessing the database\n{Err.args[0]}')
         finally:
             print(f'Database operation finished. Timestamp: {timestamp}')
 
