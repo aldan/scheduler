@@ -39,7 +39,7 @@ class GetCourseList(CronJobBase):
             logging.error('Aborted: cur_semester_data is None')
             return
 
-        cur_semester_data = convert_csbs_data_to_dict(cur_semester_data)
+        cur_semester_data = rearrange_csbs_data(cur_semester_data)
 
         timestamp = timezone.now()
         logging.info('Updating data in the database.')
@@ -64,13 +64,13 @@ class GetCourseList(CronJobBase):
             logging.info(f'Cron job finished.\nTimestamp: {timestamp}. Time taken: {timezone.now() - start_time}')
 
 
-def convert_csbs_data_to_dict(data):
+def rearrange_csbs_data(data):
     data = json.loads(data)
     data = data['data']
     del data[0]
 
-    course_dict, id_dict = {}, {}
-    cur, cid = 0, 0
+    course_list, id_dict = [], {}
+    cur = 0
 
     for index, item in enumerate(data):
         item = list(item.values())
@@ -81,7 +81,7 @@ def convert_csbs_data_to_dict(data):
                     item[i] = prev[i]
 
         if not item[0] in id_dict:
-            course_dict[cur] = {
+            course_list.append({
                 'id': cur,
                 'abbr': item[0],
                 'title': item[2],
@@ -89,8 +89,8 @@ def convert_csbs_data_to_dict(data):
                 'from': item[5],
                 'to': item[6],
                 'sections': {},
-            }
-            id_dict[item[0]] = cid = cur
+            })
+            id_dict[item[0]] = cur
             cur += 1
 
         section_type = item[1]
@@ -137,11 +137,11 @@ def convert_csbs_data_to_dict(data):
             'room': item[12],
         }
 
-        if not section_type in course_dict[cid]['sections']:
-            course_dict[cid]['sections'][section_type] = []
-        course_dict[cid]['sections'][section_type].append(section)
+        if not section_type in course_list[-1]['sections']:
+            course_list[-1]['sections'][section_type] = []
+        course_list[-1]['sections'][section_type].append(section)
 
-    return course_dict
+    return course_list
 
 
 def convert_to_mins(time12):
