@@ -430,181 +430,11 @@ function storeScheduleList() { /* data: store schedule list in localStorage for 
     console.log(scheduleList);
 }
 
-/* course data manipulation *******************************************************************************************/
-
-function storeCourseData(id, data) { /* data: store course data in localStorage to save bandwidth */
-
-    let key = `CourseID${id}`,
-        val = {};
-
-    for (const section of data) {
-
-        let section_type = section.ST,
-            days = [0, 0, 0, 0, 0, 0, 0],
-            [starttime, endtime] = section.TIMES.split('-'),
-            faculty = section.FACULTY.split('<br>');
-
-        while (!isNaN(section_type[0]) && section_type.length > 0) {
-            section_type = section_type.substring(1);
-        }
-
-        for (let i = 0; i < section.DAYS.length; i++) {
-            switch (section.DAYS[i]) {
-                case 'M':
-                    days[0] = 1;
-                    break;
-                case 'T':
-                    days[1] = 1;
-                    break;
-                case 'W':
-                    days[2] = 1;
-                    break;
-                case 'R':
-                    days[3] = 1;
-                    break;
-                case 'F':
-                    days[4] = 1;
-                    break;
-                case 'S':
-                    days[5] = 1;
-                    break;
-                case ' ':
-                    break;
-                default:
-                    console.log(`Error while parsing data: section.DAYS not recognized`);
-            }
-        }
-
-        const convertToMins = (time12) => { /* convert time in 12hr am/pm format to minutes */
-
-            let [time, ampm] = time12.split(' '),
-                [hours, mins] = time.split(':');
-
-            hours = parseInt(hours);
-            mins = parseInt(mins);
-
-            if (hours === 12) {
-                hours = 0;
-            }
-
-            if (ampm === 'PM') {
-                hours += 12;
-            }
-
-            return 60 * hours + mins;
-        }
-
-        for (let prof = 0; prof < faculty.length; prof++) {
-            faculty[prof] = faculty[prof].split(',').reverse().join(' ');
-        }
-
-        const edited_section = {
-            code: section.ST,
-            days: days,
-            daysStr: section.DAYS,
-            starttime: convertToMins(starttime),
-            endtime: convertToMins(endtime),
-            enrolled: parseInt(section.ENR),
-            capacity: parseInt(section.CAPACITY),
-            faculty: faculty.join(', '),
-            room: section.ROOM
-        }
-
-        try {
-            val[section_type].push(edited_section);
-        } catch (e) {
-            val[section_type] = [];
-            val[section_type].push(edited_section);
-        }
-    }
-
-    localStorage.setItem(key, JSON.stringify(val));
-}
-
-function getCourseData(id) { /* data: try to get course data from local storage, return data as object */
-
-    const key = `CourseID${id}`,
-        data = localStorage.getItem(key);
-
-    if (!data) {
-        return 0;
-    }
-
-    return JSON.parse(data);
-}
-
-function syncCourseList(course_list, max_trials) {
-
-    if (!course_list.length) {
-        // alert('done');
-        return;
-    }
-
-    if (!max_trials || isNaN(max_trials) || max_trials < 1) {
-        max_trials = 3;
-    }
-
-    const course_id = course_list.shift(),
-        url = `/json?method=getCourseById&courseId=${course_id}&semesterId=${semester_code}`;
-
-    $.get(url, (course_data) => {
-        storeCourseData(course_id, course_data);
-        sync_progress++;
-        console.log(`course ${course_id} synced`);
-        console.log(course_data);
-        syncCourseList(course_list);
-    }).fail(() => {
-        if (max_trials === 1) {
-            return 0;
-        }
-        syncCourseList(course_list, 3);
-        syncCourseList([course_id], max_trials - 1);
-    });
-}
-
-function resync() {
-
-    let course_list = [];
-
-    for (let schedule_id = 1; schedule_id <= 5; schedule_id++) {
-        const schedule_data = getSchedule(schedule_id).data;
-        for (const course_id in schedule_data) {
-            course_list.push(course_id);
-        }
-    }
-
-    let course_set = new Set(course_list),
-        unique_course_list = Array.from(course_set),
-        sync_total = unique_course_list.length;
-
-    for (const item in localStorage) {
-        if (item.substring(0, 8) === 'CourseID') {
-            const course_id = item.substring(8);
-            if (!course_set.has(course_id)) {
-                localStorage.removeItem(item);
-            }
-        }
-    }
-
-    sync_progress = 0;
-    let sync_check_interval = setInterval(() => {
-        let message = `Syncing.. ${sync_progress}/${sync_total}`;
-        if (sync_progress === sync_total) {
-            message = `Synced successfully!`;
-            clearInterval(sync_check_interval);
-        }
-
-        $('#header-message').html(message);
-    }, 500);
-
-    syncCourseList(unique_course_list);
-}
-
 /* onReady ************************************************************************************************************/
 
 $(document).ready(() => {
 
-    { /* select required color scheme */
+    { /* initialize color scheme */
         const prefersDarkTheme = window.matchMedia('(prefers-color-scheme: dark)'),
             toggle = document.getElementById('theme-toggle');
 
@@ -648,7 +478,126 @@ $(document).ready(() => {
         }
     }
 
-    { /* load scheduleList from local storage and load default schedule */
+    { /* populate course_dict (search source) with semester_data */
+        let course_id = 0,
+            temp_dict = {};
+
+        const convertToMins = (time12) => { /* convert time in 12hr am/pm format to minutes */
+
+            let [time, ampm] = time12.split(' '),
+                [hours, mins] = time.split(':');
+
+            hours = parseInt(hours);
+            mins = parseInt(mins);
+
+            if (hours === 12) {
+                hours = 0;
+            }
+
+            if (ampm === 'PM') {
+                hours += 12;
+            }
+
+            return 60 * hours + mins;
+        }
+
+        for (let it = 1; it < semester_data.length; it++) {
+            const instance = semester_data[it];
+
+            //  populate course data to the dict
+            if (!temp_dict[instance[0]]) {
+                course_dict[course_id] = {
+                    id: course_id,
+                    abbr: instance[0],
+                    title: instance[2],
+                    credit: instance[4],
+                    from: instance[5],
+                    to: instance[6],
+                    sections: {},
+                };
+                temp_dict[instance[0]] = course_id;
+                course_id++;
+            }
+            const cur_id = temp_dict[instance[0]];
+
+            // populate sections
+            let section_type = instance[1],
+                section_days = [0, 0, 0, 0, 0, 0, 0],
+                section_starttime = null,
+                section_endtime = null;
+
+            if (instance[8]) {
+                try {
+                    [section_starttime, section_endtime] = instance[8].split('-');
+                    section_starttime = convertToMins(section_starttime);
+                    section_endtime = convertToMins(section_endtime);
+                } catch (e) {
+                    console.log(instance[8]);
+                    console.log(it);
+                }
+            }
+
+            while (!isNaN(section_type[0]) && section_type.length > 0) {
+                section_type = section_type.substring(1);
+            }
+
+            if (!instance[7]) {
+                instance[7] = [];
+            }
+
+            for (let i = 0; i < instance[7].length; i++) {
+                switch (instance[7][i]) {
+                    case 'M':
+                        section_days[0] = 1;
+                        break;
+                    case 'T':
+                        section_days[1] = 1;
+                        break;
+                    case 'W':
+                        section_days[2] = 1;
+                        break;
+                    case 'R':
+                        section_days[3] = 1;
+                        break;
+                    case 'F':
+                        section_days[4] = 1;
+                        break;
+                    case 'S':
+                        section_days[5] = 1;
+                        break;
+                    case ' ':
+                        break;
+                    default:
+                        console.log(`Error while parsing data: section.DAYS not recognized`);
+                }
+            }
+
+            const section = {
+                code: instance[1],
+                days: section_days,
+                starttime: section_starttime,
+                endtime: section_endtime,
+                enrolled: parseInt(instance[9]),
+                capacity: parseInt(instance[10]),
+                faculty: instance[11],
+                room: instance[12]
+            }
+
+            try {
+                course_dict[cur_id].sections[section_type].push(section);
+            } catch (e) {
+                course_dict[cur_id].sections[section_type] = [];
+                course_dict[cur_id].sections[section_type].push(section);
+            }
+
+            // check if the next entry is associated with current section
+            if (semester_data[it + 1] && semester_data[it + 1][0] === null) {
+
+            }
+        }
+    }
+
+    { /* load scheduleList from local storage and load last active schedule */
         const schedules = localStorage.getItem('scheduleList'),
             lastActiveSchedule = localStorage.getItem('lastActiveSchedule');
 

@@ -4,18 +4,20 @@
 {% block head_script %}
     <script type="text/javascript">
         const
-            semester_data = {{ data|safe }},
+            semester_raw_data = {{ data|safe }},
             semester_name = '{{ name }}',
             semester_code = '{{ code }}',
             semester_last_update_dt = '{{ update_dt }}';
 
-        let scheduleList = [
+        let semester_data = semester_raw_data['data'],
+            scheduleList = [
                 {'id': '1', 'name': 'Schedule 1', 'data': {}},
                 {'id': '2', 'name': 'Schedule 2', 'data': {}},
                 {'id': '3', 'name': 'Schedule 3', 'data': {}},
                 {'id': '4', 'name': 'Schedule 4', 'data': {}},
                 {'id': '5', 'name': 'Schedule 5', 'data': {}}
             ],
+            course_dict = {},
             generic_color_set = {
                 'D50000': 0, // Tomato
                 'E67C73': 0, // Flamingo
