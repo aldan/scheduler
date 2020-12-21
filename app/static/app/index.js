@@ -481,19 +481,16 @@ $(document).ready(() => {
             localStorage.setItem('scheduleList', JSON.stringify(scheduleList));
             console.log('new scheduleList created');
             selectSchedule(1);
-            return;
         } else {
             scheduleList = JSON.parse(scheduleList_str);
             console.log('scheduleList loaded from localStorage');
-        }
 
-        console.log(scheduleList);
-
-        if (!lastActiveSchedule) {
-            selectSchedule(1);
-        } else {
-            selectSchedule(lastActiveSchedule);
-            document.getElementById('schedule-selector').value = lastActiveSchedule;
+            if (!lastActiveSchedule) {
+                selectSchedule(1);
+            } else {
+                selectSchedule(lastActiveSchedule);
+                document.getElementById('schedule-selector').value = lastActiveSchedule;
+            }
         }
     }
 
