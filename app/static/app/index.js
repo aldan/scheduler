@@ -48,16 +48,30 @@ function daysArrToString(days) {
     return days_string.slice(0, -1);
 }
 
+function getScheduleById(schedule_id) { /*returns schedule with schedule_id, if not specified - last selected is used */
+
+    if (!schedule_id) {
+        schedule_id = $('#schedule-selector option:selected').val();
+    }
+
+    /* Alternative selector
+    * schedule_id = (parseInt(schedule_id) - 1).toString();
+    * return scheduleList[schedule_id];
+    * */
+
+    schedule_id = schedule_id.toString();
+
+    return scheduleList.filter((sch) => {
+        return sch.id === schedule_id;
+    })[0];
+}
+
 /* ui manipulation ****************************************************************************************************/
 
-function selectSchedule(id) { /* ui: load courses from schedule with id and call updateScheduleView() */
+function selectSchedule(schedule_id) { /* ui: load courses from schedule with id and call updateScheduleView() */
 
-    const schedule = scheduleList.filter((sch) => {
-            return sch.id === id.toString();
-        })[0],
-        schedule_data = schedule.data;
-
-    localStorage.setItem('lastActiveSchedule', id);
+    const schedule_data = getScheduleById(schedule_id).data;
+    localStorage.setItem('lastActiveSchedule', schedule_id);
     $('.course-view').remove();
 
     for (const course_id in schedule_data) {
@@ -80,17 +94,13 @@ function selectSchedule(id) { /* ui: load courses from schedule with id and call
         }
     }
 
-    console.log(`selectSchedule: schedule '${schedule.name}' selected`)
-    updateScheduleView(id);
+    console.log(`selectSchedule: id:${schedule_id} selected`)
+    updateScheduleView(schedule_id);
 }
 
-function updateScheduleView(id) { /* ui: add events from schedule with id, call addEventToView() */
+function updateScheduleView(schedule_id) { /* ui: add events from schedule with id, call addEventToView() */
 
-    const schedule = scheduleList.filter((sch) => {
-        return sch.id === id.toString();
-    })[0];
-
-    const schedule_data = schedule.data;
+    const schedule_data = getScheduleById(schedule_id).data;
     $('.event').remove();
     $('.online-event-card').remove();
     $('.timetable-online-course-list').hide();
@@ -116,29 +126,31 @@ function addEventToView(section, selected_section, course_data, color) { /* ui: 
 
     const time_start = section_data.start,
         time_end = section_data.end,
+        time_string = `${minutesTo24String(time_start)} - ${minutesTo24String(time_end)}`,
         slot = Math.trunc(time_start / 30),
         slot_len = (time_end - time_start) / 30,
-        time_start_str = minutesTo24String(time_start),
-        time_end_str = minutesTo24String(time_end),
         color_class = (color) ? `background-${color}` : '';
 
+    // case: online
+    if (!section_data.start || (section_data.days[5] && slot >= 46)) {/* no time or day is sat & time >= 23:00 */
+        const online_course_list = $(`.timetable-online-course-list`);
+        online_course_list.css('display', 'flex');
+        online_course_list.append(`
+            <div class="online-event-card ${color_class}">
+                <b>${course_data.abbr}: ${selected_section}</b><br>
+                <span style="color: rgba(255,255,255,.8)">Online</span>
+            </div>
+        `);
+        return;
+    }
+
+    // case: offline
     for (let day = 0; day < 7; day++) {
         if (section_data.days[day]) {
-            if (day === 5 && slot >= 46) { /* day is saturday and time >= 23:00 */
-                $(`.timetable-online-course-list`).css('display', 'flex');
-                $(`.timetable-online-course-list`).append(`
-                    <div class="online-event-card ${color_class}">
-                        <b>${course_data.abbr}: ${selected_section}</b><br>
-                        <span style="color: rgba(255,255,255,.8)">Online</span>
-                    </div>
-                `);
-                continue;
-            }
-
             $(`.timetable-box table tr:eq(${slot - 13}) td:eq(${day + 1})`).append(`
                 <div class="event ${color_class}" style="height: ${100 * slot_len}%">
                     <b>${course_data.abbr}: ${selected_section}</b><br>
-                    <span style="color: rgba(255,255,255,.8)">${time_start_str} - ${time_end_str}</span>
+                    <span style="color: rgba(255,255,255,.8)">${time_string}</span>
                 </div>
             `);
         }
@@ -147,12 +159,8 @@ function addEventToView(section, selected_section, course_data, color) { /* ui: 
 
 function addCourseView(id) { /* ui: add course to the list on sidebar */
 
-    const course_data = semester_data.filter((course) => {
-        return course.id === parseInt(id);
-    })[0];
-
-    console.log('addCourseView():');
-    console.log(course_data);
+    const course_data = semester_data[id];
+    console.log(`addCourseView(): ${course_data.abbr}, id:${id}`);
 
     const generateColorSetHTML = (id) => {
 
@@ -186,11 +194,13 @@ function addCourseView(id) { /* ui: add course to the list on sidebar */
         </div>
     `);
 
+    const course_view_content = $(`#course-view-${id} .course-view-content`);
+
     for (const section_type in course_data.sections) {
 
         if (section_type === 'color') continue;
 
-        $(`#course-view-${id} .course-view-content`).append(`
+        course_view_content.append(`
             <div class="course-section">
                 <select class="course-section-select" id="course-section-select-${id}-${section_type}" 
                 data-course="${id}" data-section="${section_type}" onchange="updateCourseSection(this)">
@@ -205,7 +215,9 @@ function addCourseView(id) { /* ui: add course to the list on sidebar */
         `);
 
         for (const slot of course_data.sections[section_type]) {
-            const str_t = (slot.start) ? `${minutesTo24String(slot.start)} - ${minutesTo24String(slot.end)}` : ``;
+            const str_time = (slot.start) ? `${minutesTo24String(slot.start)} - ${minutesTo24String(slot.end)}` : ``,
+                str_room = (slot.room) ? slot.room : `Distant`,
+                str_faculty = (slot.faculty) ? slot.faculty : `No instructors specified`;
             $(`#course-section-selectX-${id}-${section_type} .course-section-selectX-options`).append(`
                 <div class="course-section-selectX-option" 
                 id="course-section-selectX-option-${id}-${section_type}-${slot.code}"
@@ -213,20 +225,20 @@ function addCourseView(id) { /* ui: add course to the list on sidebar */
                 data-days="${slot.days}" data-starttime="${slot.start}" data-endtime="${slot.end}">
                     <div class="course-section-selectX-option-top">
                         <b class="course-section-selectX-option-name">${slot.code}</b>
-                        <span class="course-section-selectX-option-time">${str_t}</span>
+                        <span class="course-section-selectX-option-time">${str_time}</span>
                         <span class="course-section-selectX-option-days">${daysArrToString(slot.days)}</span>
                         <span class="course-section-selectX-option-cap">${slot.enrolled}/${slot.capacity}</span>
-                        <span class="course-section-selectX-option-room">${slot.room}</span>
+                        <span class="course-section-selectX-option-room">${str_room}</span>
                     </div>
                     <div class="course-section-selectX-option-bottom">
-                        <span class="course-section-selectX-option-faculty">${slot.faculty}</span>
+                        <span class="course-section-selectX-option-faculty">${str_faculty}</span>
                     </div>
                 </div>
             `);
         }
     }
 
-    $(`#course-view-${id} .course-view-content`).append(`
+    course_view_content.append(`
         <div class="course-view-credits">${course_data.credit} ECTS</div>
     `);
 
@@ -239,8 +251,7 @@ function updateSelectXPosition(element) { /* ui fix: prevents selectX-options of
         selectX_top = selectX_pos.top,
         selectX_left = selectX_pos.left,
         font_size = parseFloat($('body').css('font-size')),
-        selectX_id = $(element).attr('id'),
-        selectX_cid = selectX_id.substring(23);
+        selectX_id = ($(element).attr('id')).substring(23);
 
     $(`.course-section-selectX-options`, element).css({top: selectX_top + font_size, left: selectX_left});
 
@@ -257,7 +268,7 @@ function updateSelectXPosition(element) { /* ui fix: prevents selectX-options of
 
         for (const section in sections) {
             if (section === 'color') continue;
-            if (selectX_cid === `${course_id}-${section}`) continue;
+            if (selectX_id === `${course_id}-${section}`) continue;
 
             const selected_section = sections[section],
                 section_data = course_data.sections[section].filter((sec) => {
@@ -337,21 +348,6 @@ function updateCourseColor(course_id, selected_color, elem) { /* ui: updateCours
 }
 
 /* schedule data manipulation *****************************************************************************************/
-
-function getSchedule(schedule_id) { /*returns schedule with schedule_id, if not specified - last selected is used */
-
-    if (!schedule_id) {
-        schedule_id = $('#schedule-selector option:selected').val();
-    }
-
-    if (typeof schedule_id !== "string") {
-        schedule_id = schedule_id.toString();
-    }
-
-    return scheduleList.filter((sch) => {
-        return sch.id === schedule_id;
-    })[0];
-}
 
 function addCourseToSchedule(schedule_id, course_id, course_section) { /* data: add/update course data in schedule */
 
@@ -478,15 +474,17 @@ $(document).ready(() => {
     }
 
     { /* load scheduleList from local storage and load last active schedule */
-        const schedules = localStorage.getItem('scheduleList'),
+        const scheduleList_str = localStorage.getItem('scheduleList'),
             lastActiveSchedule = localStorage.getItem('lastActiveSchedule');
 
-        if (!schedules) {
+        if (!scheduleList_str) {
             localStorage.setItem('scheduleList', JSON.stringify(scheduleList));
-            console.log('onReady: scheduleList initialized');
+            console.log('new scheduleList created');
+            selectSchedule(1);
+            return;
         } else {
-            scheduleList = JSON.parse(schedules);
-            console.log('onReady: scheduleList loaded');
+            scheduleList = JSON.parse(scheduleList_str);
+            console.log('scheduleList loaded from localStorage');
         }
 
         console.log(scheduleList);
@@ -499,16 +497,15 @@ $(document).ready(() => {
         }
     }
 
-    {
+    { /* switch to selected schedule on change */
         $('#schedule-selector').on('change', () => {
             const selectedSchedule = document.getElementById('schedule-selector').value;
             selectSchedule(selectedSchedule);
         });
     }
 
-    { /* shadow on scroll (timetable header) */
+    { /* shadow on scroll (for timetable header) */
         $('.timetable-box').on('scroll', () => {
-
             if ($('.timetable-box').scrollTop()) {
                 $('.timetable-header').addClass('bottom-shadow');
             } else {
@@ -517,9 +514,8 @@ $(document).ready(() => {
         });
     }
 
-    { /* shadow on scroll (course select) */
+    { /* shadow on scroll (for sidebar header) */
         $('#course-list-view').on('scroll', () => {
-
             if ($('#course-list-view').scrollTop()) {
                 $('.sidebar-header').addClass('bottom-shadow');
             } else {
@@ -544,11 +540,9 @@ $(document).ready(() => {
                 };
             }));
         },
-
         focus: function (event, ui) {
             event.preventDefault();
         },
-
         select: function (event, ui) {
             let course_name = ui.item.label,
                 course_id = ui.item.value,
