@@ -26,103 +26,131 @@ function minutesTo24String(minutes) {
     return `${Math.trunc(minutes / 60)}:${(minutes % 60 < 10) ? '0' : ''}${minutes % 60}`;
 }
 
+function daysArrToString(days) {
+    const day2letter_dict = {
+        0: 'M',
+        1: 'T',
+        2: 'W',
+        3: 'R',
+        4: 'F',
+        5: 'S',
+        6: '?',
+    }
+    let days_string = "";
+    days.forEach(function (val, index) {
+        if (val) {
+            days_string += day2letter_dict[index] + ' ';
+        }
+    });
+    if (days_string.length === 0) {
+        return `Online/Distant`;
+    }
+    return days_string.slice(0, -1);
+}
+
+function getScheduleById(schedule_id) { /*returns schedule with schedule_id, if not specified - last selected is used */
+
+    if (!schedule_id) {
+        schedule_id = $('#schedule-selector option:selected').val();
+    }
+
+    /* Alternative selector
+    * schedule_id = (parseInt(schedule_id) - 1).toString();
+    * return scheduleList[schedule_id];
+    * */
+
+    schedule_id = schedule_id.toString();
+
+    return scheduleList.filter((sch) => {
+        return sch.id === schedule_id;
+    })[0];
+}
+
 /* ui manipulation ****************************************************************************************************/
 
-function selectSchedule(id) { /* ui: load courses from schedule with id and call updateScheduleView() */
+function selectSchedule(schedule_id) { /* ui: load courses from schedule with id and call updateScheduleView() */
 
-    const schedule = scheduleList.filter((sch) => {
-        return sch.id === id.toString();
-    })[0];
-
-    localStorage.setItem('lastActiveSchedule', id);
-
-    const data = schedule.data;
+    const schedule_data = getScheduleById(schedule_id).data;
+    localStorage.setItem('lastActiveSchedule', schedule_id);
     $('.course-view').remove();
 
-    for (const course in data) {
-
-        addCourseView(course);
-        const cdata = data[course],
-            course_color = cdata['color'];
+    for (const course_id in schedule_data) {
+        addCourseView(course_id);
+        const course_params = schedule_data[course_id],
+            course_color = course_params['color'];
 
         if (!course_color) {
-            console.log(`no color property for course ${course}`);
+            console.log(`no color property for course ${semester_data[course_id].abbr}`);
         } else {
-            $(`#course-color-select-${course}`).addClass(`background-${course_color}`);
-            $(`#course-color-select-${course} > div:eq(0) > div.background-${course_color}`).addClass('selected');
+            $(`#course-color-select-${course_id}`).addClass(`background-${course_color}`);
+            $(`#course-color-select-${course_id} > div:eq(0) > div.background-${course_color}`).addClass('selected');
         }
 
-
-        for (const section in cdata) { /* pre-select course sections */
-
+        for (const section in course_params) { /* pre-select course sections */
             if (section === 'color') continue;
 
-            // $(`#course-section-select-${course}-${section} option[value="${cdata[section]}"]`).prop('selected', true);
-            $(`#course-section-selectX-option-${course}-${section}-${cdata[section]}`).addClass('selectedX');
-            $(`#course-section-selectX-${course}-${section} div:eq(0)`).text(cdata[section]);
+            $(`#course-section-selectX-option-${course_id}-${section}-${course_params[section]}`).addClass('selectedX');
+            $(`#course-section-selectX-${course_id}-${section} div:eq(0)`).text(course_params[section]);
         }
     }
 
-    console.log(`selectSchedule: schedule '${schedule.name}' selected`)
-    updateScheduleView(id);
+    console.log(`selectSchedule: id:${schedule_id} selected`)
+    updateScheduleView(schedule_id);
 }
 
-function updateScheduleView(id) { /* ui: add events from schedule with id, call addEventToView() */
+function updateScheduleView(schedule_id) { /* ui: add events from schedule with id, call addEventToView() */
 
-    const schedule = scheduleList.filter((sch) => {
-        return sch.id === id.toString();
-    })[0];
-
-    const data = schedule.data;
+    const schedule_data = getScheduleById(schedule_id).data;
     $('.event').remove();
     $('.online-event-card').remove();
     $('.timetable-online-course-list').hide();
 
-    for (const course in data) {
+    for (const course_id in schedule_data) {
 
-        const cdata = data[course],
-            course_data = getCourseData(course),
-            [course_abbr, course_name] = $(`#course-view-${course} span:eq(0)`).html().split(': '),
-            course_color = cdata['color'];
+        const course_params = schedule_data[course_id],
+            course_data = semester_data[course_id],
+            course_color = course_params['color'];
 
-        for (const section in cdata) {
+        for (const section in course_params) {
             if (section === 'color') continue;
-            addEventToView(section, cdata[section], course_data, course_abbr, course_color);
+            addEventToView(section, course_params[section], course_data, course_color);
         }
     }
 }
 
-function addEventToView(section, selected_section, course_data, course_abbr, color) { /* ui: add event to timetable */
+function addEventToView(section, selected_section, course_data, color) { /* ui: add event to timetable */
 
-    const section_data = course_data[section].filter((sec) => {
+    const section_data = course_data.sections[section].filter((sec) => {
         return sec.code === selected_section;
     })[0];
 
-    const time_start = section_data.starttime,
-        time_end = section_data.endtime,
+    const time_start = section_data.start,
+        time_end = section_data.end,
+        time_string = `${minutesTo24String(time_start)} - ${minutesTo24String(time_end)}`,
         slot = Math.trunc(time_start / 30),
         slot_len = (time_end - time_start) / 30,
-        time_start_str = minutesTo24String(time_start),
-        time_end_str = minutesTo24String(time_end),
         color_class = (color) ? `background-${color}` : '';
 
+    // case: online
+    if (!section_data.start || (section_data.days[5] && slot >= 46)) {/* no time or day is sat & time >= 23:00 */
+        const online_course_list = $(`.timetable-online-course-list`);
+        online_course_list.css('display', 'flex');
+        online_course_list.append(`
+            <div class="online-event-card ${color_class}">
+                <b>${course_data.abbr}: ${selected_section}</b><br>
+                <span style="color: rgba(255,255,255,.8)">Online</span>
+            </div>
+        `);
+        return;
+    }
+
+    // case: offline
     for (let day = 0; day < 7; day++) {
         if (section_data.days[day]) {
-            if (day === 5 && slot >= 46) { /* day is saturday and time >= 23:00 */
-                $(`.timetable-online-course-list`).css('display', 'flex');
-                $(`.timetable-online-course-list`).append(`
-                    <div class="online-event-card ${color_class}">
-                        <b>${course_abbr}: ${selected_section}</b><br>
-                        <span style="color: rgba(255,255,255,.8)">Online</span>
-                    </div>
-                `);
-                continue;
-            }
-
             $(`.timetable-box table tr:eq(${slot - 13}) td:eq(${day + 1})`).append(`
                 <div class="event ${color_class}" style="height: ${100 * slot_len}%">
-                    <b>${course_abbr}: ${selected_section}</b><br>
-                    <span style="color: rgba(255,255,255,.8)">${time_start_str} - ${time_end_str}</span>
+                    <b>${course_data.abbr}: ${selected_section}</b><br>
+                    <span style="color: rgba(255,255,255,.8)">${time_string}</span>
                 </div>
             `);
         }
@@ -131,20 +159,8 @@ function addEventToView(section, selected_section, course_data, course_abbr, col
 
 function addCourseView(id) { /* ui: add course to the list on sidebar */
 
-    const data = getCourseData(id);
-
-    if (!data) {
-        console.log('addCourseView(): could not retrieve data');
-        return 0;
-    }
-
-    const info = semester_data.filter((course) => {
-        return course.COURSEID === id
-    })[0];
-
-    console.log('addCourseView():');
-    console.log(data);
-    console.log(info);
+    const course_data = semester_data[id];
+    console.log(`addCourseView(): ${course_data.abbr}, id:${id}`);
 
     const generateColorSetHTML = (id) => {
 
@@ -162,12 +178,13 @@ function addCourseView(id) { /* ui: add course to the list on sidebar */
     $('#course-list-view').append(`
         <div class="course-view" id="course-view-${id}">
             <div class="course-view-header">
-                <span class="course-view-title">${info.ABBR}: ${info.TITLE}</span>
+                <span class="course-view-title">${course_data.abbr}: ${course_data.title}</span>
                 <span class="course-view-remove" onclick="removeCourseFromSchedule(-1,${id})">&#10006;</span>
             </div>
             <div class="course-view-content">
                 <div class="course-view-color">
-                    <div class="course-color-select" id="course-color-select-${id}" onmouseover="updateColorPalettePosition(this)">
+                    <div class="course-color-select" id="course-color-select-${id}" 
+                    onmouseover="updateColorPalettePosition(this)">
                         <div class="course-color-select-palette">
                             ${generateColorSetHTML(id)}
                         </div>
@@ -177,48 +194,52 @@ function addCourseView(id) { /* ui: add course to the list on sidebar */
         </div>
     `);
 
-    for (const section_name in data) {
+    const course_view_content = $(`#course-view-${id} .course-view-content`);
 
-        if (section_name === 'color') continue;
+    for (const section_type in course_data.sections) {
 
-        $(`#course-view-${id} .course-view-content`).append(`
+        if (section_type === 'color') continue;
+
+        course_view_content.append(`
             <div class="course-section">
-                <select class="course-section-select" id="course-section-select-${id}-${section_name}" data-course="${id}" 
-                data-section="${section_name}" onchange="updateCourseSection(this)">
+                <select class="course-section-select" id="course-section-select-${id}-${section_type}" 
+                data-course="${id}" data-section="${section_type}" onchange="updateCourseSection(this)">
                     <option value="-1">Select section</option>
                 </select>
-                <div class="course-section-selectX" id="course-section-selectX-${id}-${section_name}" onmouseover="updateSelectXPosition(this)">
-                    <div class="course-section-selectX-selector">${section_name}</div>
+                <div class="course-section-selectX" id="course-section-selectX-${id}-${section_type}" 
+                onmouseover="updateSelectXPosition(this)">
+                    <div class="course-section-selectX-selector">${section_type}</div>
                     <div class="course-section-selectX-options"></div>
                 </div>
             </div>
         `);
 
-        for (const slot of data[section_name]) {
-            $(`#course-section-select-${id}-${section_name}`).append(`<option value="${slot.code}">${slot.code}</option>`);
-            $(`#course-section-selectX-${id}-${section_name} .course-section-selectX-options`).append(`
-                <div class="course-section-selectX-option" id="course-section-selectX-option-${id}-${section_name}-${slot.code}"
-                onclick="updateCourseSectionCC('${id}','${section_name}','${slot.code}', this)" data-days="${slot.days}"
-                data-starttime="${slot.starttime}" data-endtime="${slot.endtime}">
+        for (const slot of course_data.sections[section_type]) {
+            const str_time = (slot.start) ? `${minutesTo24String(slot.start)} - ${minutesTo24String(slot.end)}` : ``,
+                str_room = (slot.room) ? slot.room : `Distant`,
+                str_faculty = (slot.faculty) ? slot.faculty : `No instructors specified`;
+            $(`#course-section-selectX-${id}-${section_type} .course-section-selectX-options`).append(`
+                <div class="course-section-selectX-option" 
+                id="course-section-selectX-option-${id}-${section_type}-${slot.code}"
+                onclick="updateCourseSectionCC('${id}','${section_type}','${slot.code}', this)" 
+                data-days="${slot.days}" data-starttime="${slot.start}" data-endtime="${slot.end}">
                     <div class="course-section-selectX-option-top">
                         <b class="course-section-selectX-option-name">${slot.code}</b>
-                        <span class="course-section-selectX-option-time">
-                            ${minutesTo24String(slot.starttime)} - ${minutesTo24String(slot.endtime)}
-                        </span>
-                        <span class="course-section-selectX-option-days">${slot.daysStr}</span>
+                        <span class="course-section-selectX-option-time">${str_time}</span>
+                        <span class="course-section-selectX-option-days">${daysArrToString(slot.days)}</span>
                         <span class="course-section-selectX-option-cap">${slot.enrolled}/${slot.capacity}</span>
-                        <span class="course-section-selectX-option-room">${slot.room}</span>
+                        <span class="course-section-selectX-option-room">${str_room}</span>
                     </div>
                     <div class="course-section-selectX-option-bottom">
-                        <span class="course-section-selectX-option-faculty">${slot.faculty}</span>
+                        <span class="course-section-selectX-option-faculty">${str_faculty}</span>
                     </div>
                 </div>
             `);
         }
     }
 
-    $(`#course-view-${id} .course-view-content`).append(`
-        <div class="course-view-credits">${info.CRECTS} ECTS</div>
+    course_view_content.append(`
+        <div class="course-view-credits">${course_data.credit} ECTS</div>
     `);
 
     return 1;
@@ -230,31 +251,30 @@ function updateSelectXPosition(element) { /* ui fix: prevents selectX-options of
         selectX_top = selectX_pos.top,
         selectX_left = selectX_pos.left,
         font_size = parseFloat($('body').css('font-size')),
-        selectX_id = $(element).attr('id'),
-        selectX_cid = selectX_id.substring(23);
+        selectX_id = ($(element).attr('id')).substring(23);
 
     $(`.course-section-selectX-options`, element).css({top: selectX_top + font_size, left: selectX_left});
 
     const schedule_id = $('#schedule-selector option:selected').val(),
         schedule = scheduleList.filter((sch) => {
             return sch.id === schedule_id.toString();
-        })[0];
-    const schedule_data = schedule.data;
+        })[0],
+        schedule_data = schedule.data;
 
     let timings = [], cur = 0;
-    for (const course in schedule_data) {
-        const sections = schedule_data[course],
-            course_data = getCourseData(course);
+    for (const course_id in schedule_data) {
+        const sections = schedule_data[course_id],
+            course_data = semester_data[course_id];
 
         for (const section in sections) {
             if (section === 'color') continue;
-            if (selectX_cid === `${course}-${section}`) continue;
+            if (selectX_id === `${course_id}-${section}`) continue;
 
-            const selected_section = sections[section];
-            const section_data = course_data[section].filter((sec) => {
-                return sec.code === selected_section;
-            })[0];
-            timings[cur++] = [section_data.starttime, section_data.endtime, section_data.days];
+            const selected_section = sections[section],
+                section_data = course_data.sections[section].filter((sec) => {
+                    return sec.code === selected_section;
+                })[0];
+            timings[cur++] = [section_data.start, section_data.end, section_data.days];
         }
     }
 
@@ -300,16 +320,6 @@ function updateColorPalettePosition(element) { /* ui fix: prevents selectX-optio
     });
 }
 
-function updateCourseSection(element) { /* ui: get selected sections from view and call addCourseToSchedule() */
-
-    const selectedSectionCode = element.options[element.selectedIndex].value,
-        course_id = element.getAttribute('data-course'),
-        section = element.getAttribute('data-section'),
-        selected_schedule_id = $('#schedule-selector option:selected').val();
-
-    addCourseToSchedule(selected_schedule_id, course_id, `${section}:${selectedSectionCode}`);
-}
-
 function updateCourseSectionCC(course_id, section, selected_section, elem) { /* ui: updateCourseSection() for selectX */
 
     if ($(elem).hasClass('disabled')) {
@@ -338,21 +348,6 @@ function updateCourseColor(course_id, selected_color, elem) { /* ui: updateCours
 }
 
 /* schedule data manipulation *****************************************************************************************/
-
-function getSchedule(schedule_id) { /*returns schedule with schedule_id, if not specified - last selected is used */
-
-    if (!schedule_id) {
-        schedule_id = $('#schedule-selector option:selected').val();
-    }
-
-    if (typeof schedule_id !== "string") {
-        schedule_id = schedule_id.toString();
-    }
-
-    return scheduleList.filter((sch) => {
-        return sch.id === schedule_id;
-    })[0];
-}
 
 function addCourseToSchedule(schedule_id, course_id, course_section) { /* data: add/update course data in schedule */
 
@@ -430,181 +425,11 @@ function storeScheduleList() { /* data: store schedule list in localStorage for 
     console.log(scheduleList);
 }
 
-/* course data manipulation *******************************************************************************************/
-
-function storeCourseData(id, data) { /* data: store course data in localStorage to save bandwidth */
-
-    let key = `CourseID${id}`,
-        val = {};
-
-    for (const section of data) {
-
-        let section_type = section.ST,
-            days = [0, 0, 0, 0, 0, 0, 0],
-            [starttime, endtime] = section.TIMES.split('-'),
-            faculty = section.FACULTY.split('<br>');
-
-        while (!isNaN(section_type[0]) && section_type.length > 0) {
-            section_type = section_type.substring(1);
-        }
-
-        for (let i = 0; i < section.DAYS.length; i++) {
-            switch (section.DAYS[i]) {
-                case 'M':
-                    days[0] = 1;
-                    break;
-                case 'T':
-                    days[1] = 1;
-                    break;
-                case 'W':
-                    days[2] = 1;
-                    break;
-                case 'R':
-                    days[3] = 1;
-                    break;
-                case 'F':
-                    days[4] = 1;
-                    break;
-                case 'S':
-                    days[5] = 1;
-                    break;
-                case ' ':
-                    break;
-                default:
-                    console.log(`Error while parsing data: section.DAYS not recognized`);
-            }
-        }
-
-        const convertToMins = (time12) => { /* convert time in 12hr am/pm format to minutes */
-
-            let [time, ampm] = time12.split(' '),
-                [hours, mins] = time.split(':');
-
-            hours = parseInt(hours);
-            mins = parseInt(mins);
-
-            if (hours === 12) {
-                hours = 0;
-            }
-
-            if (ampm === 'PM') {
-                hours += 12;
-            }
-
-            return 60 * hours + mins;
-        }
-
-        for (let prof = 0; prof < faculty.length; prof++) {
-            faculty[prof] = faculty[prof].split(',').reverse().join(' ');
-        }
-
-        const edited_section = {
-            code: section.ST,
-            days: days,
-            daysStr: section.DAYS,
-            starttime: convertToMins(starttime),
-            endtime: convertToMins(endtime),
-            enrolled: parseInt(section.ENR),
-            capacity: parseInt(section.CAPACITY),
-            faculty: faculty.join(', '),
-            room: section.ROOM
-        }
-
-        try {
-            val[section_type].push(edited_section);
-        } catch (e) {
-            val[section_type] = [];
-            val[section_type].push(edited_section);
-        }
-    }
-
-    localStorage.setItem(key, JSON.stringify(val));
-}
-
-function getCourseData(id) { /* data: try to get course data from local storage, return data as object */
-
-    const key = `CourseID${id}`,
-        data = localStorage.getItem(key);
-
-    if (!data) {
-        return 0;
-    }
-
-    return JSON.parse(data);
-}
-
-function syncCourseList(course_list, max_trials) {
-
-    if (!course_list.length) {
-        // alert('done');
-        return;
-    }
-
-    if (!max_trials || isNaN(max_trials) || max_trials < 1) {
-        max_trials = 3;
-    }
-
-    const course_id = course_list.shift(),
-        url = `/json?method=getCourseById&courseId=${course_id}&semesterId=${semester_code}`;
-
-    $.get(url, (course_data) => {
-        storeCourseData(course_id, course_data);
-        sync_progress++;
-        console.log(`course ${course_id} synced`);
-        console.log(course_data);
-        syncCourseList(course_list);
-    }).fail(() => {
-        if (max_trials === 1) {
-            return 0;
-        }
-        syncCourseList(course_list, 3);
-        syncCourseList([course_id], max_trials - 1);
-    });
-}
-
-function resync() {
-
-    let course_list = [];
-
-    for (let schedule_id = 1; schedule_id <= 5; schedule_id++) {
-        const schedule_data = getSchedule(schedule_id).data;
-        for (const course_id in schedule_data) {
-            course_list.push(course_id);
-        }
-    }
-
-    let course_set = new Set(course_list),
-        unique_course_list = Array.from(course_set),
-        sync_total = unique_course_list.length;
-
-    for (const item in localStorage) {
-        if (item.substring(0, 8) === 'CourseID') {
-            const course_id = item.substring(8);
-            if (!course_set.has(course_id)) {
-                localStorage.removeItem(item);
-            }
-        }
-    }
-
-    sync_progress = 0;
-    let sync_check_interval = setInterval(() => {
-        let message = `Syncing.. ${sync_progress}/${sync_total}`;
-        if (sync_progress === sync_total) {
-            message = `Synced successfully!`;
-            clearInterval(sync_check_interval);
-        }
-
-        $('#header-message').html(message);
-    }, 500);
-
-    syncCourseList(unique_course_list);
-}
-
 /* onReady ************************************************************************************************************/
 
 $(document).ready(() => {
 
-    { /* select required color scheme */
+    { /* initialize color scheme */
         const prefersDarkTheme = window.matchMedia('(prefers-color-scheme: dark)'),
             toggle = document.getElementById('theme-toggle');
 
@@ -648,16 +473,18 @@ $(document).ready(() => {
         }
     }
 
-    { /* load scheduleList from local storage and load default schedule */
-        const schedules = localStorage.getItem('scheduleList'),
+    { /* load scheduleList from local storage and load last active schedule */
+        const scheduleList_str = localStorage.getItem('scheduleList'),
             lastActiveSchedule = localStorage.getItem('lastActiveSchedule');
 
-        if (!schedules) {
+        if (!scheduleList_str) {
             localStorage.setItem('scheduleList', JSON.stringify(scheduleList));
-            console.log('onReady: scheduleList initialized');
+            console.log('new scheduleList created');
+            selectSchedule(1);
+            return;
         } else {
-            scheduleList = JSON.parse(schedules);
-            console.log('onReady: scheduleList loaded');
+            scheduleList = JSON.parse(scheduleList_str);
+            console.log('scheduleList loaded from localStorage');
         }
 
         console.log(scheduleList);
@@ -670,16 +497,15 @@ $(document).ready(() => {
         }
     }
 
-    {
+    { /* switch to selected schedule on change */
         $('#schedule-selector').on('change', () => {
             const selectedSchedule = document.getElementById('schedule-selector').value;
             selectSchedule(selectedSchedule);
         });
     }
 
-    { /* shadow on scroll (timetable header) */
+    { /* shadow on scroll (for timetable header) */
         $('.timetable-box').on('scroll', () => {
-
             if ($('.timetable-box').scrollTop()) {
                 $('.timetable-header').addClass('bottom-shadow');
             } else {
@@ -688,9 +514,8 @@ $(document).ready(() => {
         });
     }
 
-    { /* shadow on scroll (course select) */
+    { /* shadow on scroll (for sidebar header) */
         $('#course-list-view').on('scroll', () => {
-
             if ($('#course-list-view').scrollTop()) {
                 $('.sidebar-header').addClass('bottom-shadow');
             } else {
@@ -705,60 +530,31 @@ $(document).ready(() => {
         minLength: 2,
         source: function (req, res) {
             let filtered_course_list = semester_data.filter((course) => {
-                return course.ABBR.toLowerCase().indexOf(req.term.toLowerCase()) !== -1;
+                return course.abbr.toLowerCase().indexOf(req.term.toLowerCase()) !== -1;
             });
 
             res($.map(filtered_course_list, (course) => {
                 return {
-                    label: course.ABBR,
-                    value: course.COURSEID
-                }
+                    label: course.abbr,
+                    value: course.id
+                };
             }));
         },
-
         focus: function (event, ui) {
             event.preventDefault();
         },
-
         select: function (event, ui) {
             let course_name = ui.item.label,
                 course_id = ui.item.value,
-                get_url = `/json?method=getCourseById&courseId=${course_id}&semesterId=${semester_code}`,
                 schedule_id = $('#schedule-selector option:selected').val();
 
             $(this).val('');
 
-            // get course data
             if (isInSchedule(schedule_id, course_id)) {
                 return false;
-            } else if (getCourseData(course_id)) {
-
+            } else {
                 addCourseToSchedule(schedule_id, course_id, '');
                 addCourseView(course_id);
-            } else {
-
-                // loading string
-                $('#course-list-view').append(`
-                    <div class="course-view" id="course-view-${course_id}-loading">
-                        <div class="course-view-header"><span>Working.</span></div>
-                    </div>
-                `);
-
-                let course_load_interval = setInterval(() => {
-                    $(`#course-view-${course_id}-loading div:eq(0) span`).toggleClass('loading-string');
-                }, 500);
-
-                $.get(get_url, (course_data) => {
-                    clearInterval(course_load_interval);
-                    $(`#course-view-${course_id}-loading`).remove();
-                    addCourseToSchedule(schedule_id, course_id, '');
-                    storeCourseData(course_id, course_data);
-                    addCourseView(course_id);
-                }).fail(() => {
-                    alert('Registrar is unavailable');
-                    clearInterval(course_load_interval);
-                    $(`#course-view-${course_id}-loading`).remove();
-                });
             }
 
             event.preventDefault();

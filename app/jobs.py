@@ -1,113 +1,157 @@
-import requests
 from django_cron import CronJobBase, Schedule
-from .models import Semester
 from django.utils import timezone
+from .models import Semester
+
+import logging
+import json
+import public_course_catalog as pcc
+import pdfscraper
 
 
 class GetCourseList(CronJobBase):
-
     update_period = 360  # in minutes
-
     schedule = Schedule(run_every_mins=update_period)
     code = 'app.get_course_list'
 
     def do(self):
         start_time = timezone.now()
-        print(f'Cron job started\nCron name: app.get_course_list\nTimestamp: {start_time}\n')
+        logging.info(f'Cron started: app.get_course_list. Timestamp: {start_time}\n')
 
-        url_course_data = 'https://registrar.nu.edu.kz/my-registrar/public-course-catalog/json'
-        request_timeout = 30  # in seconds
+        cur_semester = pcc.get_semester()
+        if cur_semester is None:
+            logging.error('Aborted: cur_semester is None')
+            return
 
-        # getSemester
-        print(f'getSemesters: waiting for response..')
-        data = {
-            'method': 'getSemesters'
-        }
+        logging.info(f'Current semester: {cur_semester["NAME"]}, id: {cur_semester["ID"]}')
 
         try:
-            res = requests.post(url_course_data, data=data, timeout=request_timeout)
-            res.raise_for_status()
-        except requests.exceptions.Timeout:
-            print(f'getSemesters: request timed out')
-            return
-        except requests.exceptions.RequestException as Err:
-            print(f'getSemesters: error occurred\n{Err.args[0]}')
-            return
-        finally:
-            print(f'getSemesters: STATUS {res.status_code}')
-
-        try:
-            semester_list_json = res.json()
-            last_semester_code = semester_list_json[0]['ID']
-            last_semester_name = semester_list_json[0]['NAME']
-        except:
-            print(f'getSemesters: could not process data')
+            cur_semester_data = pdfscraper.get_csbs_as_json_table(
+                semester_code=cur_semester['ID'],
+                academic_level_code=1,
+                verify_params=False
+            )
+        except Exception as err:
+            logging.error('Aborted: pdfscraper.get_csbs_as_json_columns() failed')
+            logging.error(f'Exception occurred:\n{err.args[0]}')
             return
 
-        print(f'getSemesters: last semester {last_semester_name}')
-
-        # getSearchData
-        data = {
-            'method': 'getSearchData',
-            'searchParams[formSimple]': 'false',
-            'searchParams[limit]': '1000',
-            'searchParams[page]': '1',
-            'searchParams[start]': '0',
-            'searchParams[quickSearch]': '',
-            'searchParams[sortField]': '-1',
-            'searchParams[sortDescending]': '-1',
-            'searchParams[semester]': last_semester_code,
-            'searchParams[schools]': '',
-            'searchParams[departments]': '',
-            'searchParams[levels]': '',
-            'searchParams[subjects]': '',
-            'searchParams[instructors]': '',
-            'searchParams[breadths]': '',
-            'searchParams[abbrNum]': '',
-            'searchParams[credit]': ''
-        }
-
-        print(f'getSearchData: waiting for response..')
-
-        try:
-            res = requests.post(url_course_data, data=data, timeout=request_timeout)
-            res.raise_for_status()
-        except requests.exceptions.Timeout as Err:
-            print(f'getSearchData: request timed out')
+        if cur_semester_data is None:
+            logging.error('Aborted: cur_semester_data is None')
             return
-        except requests.exceptions.RequestException as Err:
-            print(f'getSearchData: generic error occurred\n{Err.args[0]}')
-            return
-        finally:
-            print(f'getSearchData: STATUS {res.status_code}')
+
+        cur_semester_data = rearrange_csbs_data(cur_semester_data)
 
         timestamp = timezone.now()
-
-        try:
-            last_semester_data = res.json()['data']
-            print(f'getSearchData: data length {len(last_semester_data)}')
-        except:
-            print(f'getSearchData: could not process data')
-            return
-
-        print('Updating data in the database')
+        logging.info('Updating data in the database.')
 
         semester_fields = {
-            'semester_name': last_semester_name,
-            'semester_code': last_semester_code,
-            'semester_data': last_semester_data,
+            'semester_name': cur_semester['NAME'],
+            'semester_code': cur_semester['ID'],
+            'semester_data': json.dumps(cur_semester_data),
             'last_update_datetime': timestamp,
         }
 
         try:
             semester, created = Semester.objects.update_or_create(
-                semester_code=last_semester_code,
-                defaults=semester_fields
+                semester_code=cur_semester['ID'],
+                defaults=semester_fields,
             )
-            print(f'Successfully {"created" if created else "updated"} Semester: {semester}')
-        except Exception as Err:
-            print(f'Exception occurred while accessing the database\n{Err.args[0]}')
-        finally:
-            print(f'Database operation finished. Timestamp: {timestamp}')
+            logging.info(f'Successfully {"created" if created else "updated"} Semester: {semester}')
 
-        print(f'Cron job finished\nTime taken: {timezone.now()-start_time}')
+        except Exception as err:
+            logging.error(f'Exception occurred while accessing the database\n{err.args[0]}')
+        finally:
+            logging.info(f'Cron job finished.\nTimestamp: {timestamp}. Time taken: {timezone.now() - start_time}')
+
+
+def rearrange_csbs_data(data):
+    data = json.loads(data)
+    data = data['data']
+    del data[0]
+
+    course_list, id_dict = [], {}
+    cur = 0
+
+    for index, item in enumerate(data):
+        item = list(item.values())
+        if not item[0]:
+            prev = list(data[index - 1].values())
+            for i in range(len(item)):
+                if not item[i]:
+                    item[i] = prev[i]
+
+        if not item[0] in id_dict:
+            course_list.append({
+                'id': cur,
+                'abbr': item[0],
+                'title': item[2],
+                'credit': item[4],
+                'from': item[5],
+                'to': item[6],
+                'sections': {},
+            })
+            id_dict[item[0]] = cur
+            cur += 1
+
+        section_type = item[1]
+        section_days = [0, 0, 0, 0, 0, 0, 0]
+        section_start = None
+        section_end = None
+
+        while len(section_type) and section_type[0].isdigit():
+            section_type = section_type[1:]
+
+        if item[7]:
+            for char in item[7]:
+                if not char.isalpha():
+                    pass
+                elif char.lower() == 'm':
+                    section_days[0] = 1
+                elif char.lower() == 't':
+                    section_days[1] = 1
+                elif char.lower() == 'w':
+                    section_days[2] = 1
+                elif char.lower() == 'r':
+                    section_days[3] = 1
+                elif char.lower() == 'f':
+                    section_days[4] = 1
+                elif char.lower() == 's':
+                    section_days[5] = 1
+
+        if item[8]:
+            try:
+                section_start, section_end = item[8].split('-')
+                section_start = convert_to_mins(section_start)
+                section_end = convert_to_mins(section_end)
+            except ValueError:
+                pass
+
+        section = {
+            'code': item[1],
+            'days': section_days,
+            'start': section_start,
+            'end': section_end,
+            'enrolled': int(item[9]),
+            'capacity': int(item[10]),
+            'faculty': item[11],
+            'room': item[12],
+        }
+
+        if not section_type in course_list[-1]['sections']:
+            course_list[-1]['sections'][section_type] = []
+        course_list[-1]['sections'][section_type].append(section)
+
+    return course_list
+
+
+def convert_to_mins(time12):
+    time, ampm = time12.split(' ')
+    hours, mins = map(int, time.split(':'))
+
+    if hours == 12:
+        hours = 0
+
+    if ampm.lower() == 'pm':
+        hours += 12
+
+    return 60 * hours + mins
