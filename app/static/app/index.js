@@ -87,7 +87,7 @@ function selectSchedule(schedule_id) { /* ui: load courses from schedule with id
         }
 
         for (const section in course_params) { /* pre-select course sections */
-            if (section === 'color') continue;
+            if (section === 'color' || section === 'abbr') continue;
 
             $(`#course-section-selectX-option-${course_id}-${section}-${course_params[section]}`).addClass('selectedX');
             $(`#course-section-selectX-${course_id}-${section} div:eq(0)`).text(course_params[section]);
@@ -112,7 +112,7 @@ function updateScheduleView(schedule_id) { /* ui: add events from schedule with 
             course_color = course_params['color'];
 
         for (const section in course_params) {
-            if (section === 'color') continue;
+            if (section === 'color' || section === 'abbr') continue;
             addEventToView(section, course_params[section], course_data, course_color);
         }
     }
@@ -198,7 +198,7 @@ function addCourseView(id) { /* ui: add course to the list on sidebar */
 
     for (const section_type in course_data.sections) {
 
-        if (section_type === 'color') continue;
+        if (section_type === 'color' || section_type === 'abbr') continue;
 
         course_view_content.append(`
             <div class="course-section">
@@ -267,7 +267,7 @@ function updateSelectXPosition(element) { /* ui fix: prevents selectX-options of
             course_data = semester_data[course_id];
 
         for (const section in sections) {
-            if (section === 'color') continue;
+            if (section === 'color' || section === 'abbr') continue;
             if (selectX_id === `${course_id}-${section}`) continue;
 
             const selected_section = sections[section],
@@ -358,7 +358,7 @@ function addCourseToSchedule(schedule_id, course_id, course_section) { /* data: 
             const course = course_id in schedule.data;
 
             if (course === undefined || !course) {
-                schedule.data[course_id] = {};
+                schedule.data[course_id] = {abbr: semester_data[course_id].abbr};
             }
 
             if (course_section !== '') {
@@ -464,12 +464,42 @@ $(document).ready(() => {
         });
     }
 
-    { /* check if schedule data is relevant for current semester */
+    { /* check if scheduleList is relevant for current semester */
         const last_active_semester = localStorage.getItem('lastActiveSemester');
 
         if (!last_active_semester || semester_name !== last_active_semester) {
             localStorage.removeItem('scheduleList');
             localStorage.setItem('lastActiveSemester', `${semester_name}`);
+        }
+    }
+
+    { /* index dict */
+        for (const course of semester_data) {
+            course_dict[course.abbr] = course.id;
+        }
+    }
+
+    { /* check scheduleList for unknown/bad-indexed courses */
+        let initialScheduleList = localStorage.getItem('scheduleList'),
+            index = 0;
+
+        if (initialScheduleList) {
+            initialScheduleList = JSON.parse(initialScheduleList);
+            let newScheduleList = scheduleList;
+
+            for (const schedule of initialScheduleList) {
+                for (const course in schedule.data) {
+                    const course_abbr = schedule.data[course].abbr;
+                    if (course_abbr !== semester_data[course].abbr) {
+                        const newId = course_dict[course_abbr];
+                        newScheduleList[index].data[newId] = schedule.data[course];
+                    } else {
+                        newScheduleList[index].data[course] = schedule.data[course];
+                    }
+                }
+                index++;
+            }
+            localStorage.setItem('scheduleList', JSON.stringify(newScheduleList));
         }
     }
 

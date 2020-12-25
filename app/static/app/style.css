@@ -842,7 +842,7 @@ table {
     border-radius: 0.125em;
 
     background: var(--event);
-    color: var(--text-alt);
+    color: #fff;
 }
 
 .timetable-header {
@@ -930,5 +930,5 @@ tr.timetable-last td { /* last row in timetable */
     border-radius: 0.125em;
 
     background: var(--event);
-    color: var(--text-alt);
+    color: #fff;
 }
