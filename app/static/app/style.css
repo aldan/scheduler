@@ -436,10 +436,15 @@ body {
 }
 
 .header-message {
+    font-size: 0.8em;
     margin: auto 1em auto 1em;
     border-radius: 0.25em;
     background: var(--background);
     padding: 0 0.5em 0 0.5em;
+}
+
+.header-message.info {
+    color: var(--text-light);
 }
 
 .header-message.warning {

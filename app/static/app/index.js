@@ -531,6 +531,12 @@ $(document).ready(() => {
         });
     }
 
+    { /* show update message */
+        const header_message = $('#header-message');
+        header_message.html(`Last synced with registrar: ${semester_last_update_dt} ago`);
+        header_message.addClass('info');
+    }
+
     { /* shadow on scroll (for timetable header) */
         $('.timetable-box').on('scroll', () => {
             if ($('.timetable-box').scrollTop()) {

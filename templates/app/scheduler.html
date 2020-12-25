@@ -7,7 +7,7 @@
             semester_data = {{ data|safe }},
             semester_name = '{{ name }}',
             semester_code = '{{ code }}',
-            semester_last_update_dt = '{{ update_dt }}';
+            semester_last_update_dt = '{{ update_dt|timesince }}';
 
         let scheduleList = [
                 {'id': '1', 'name': 'Schedule 1', 'data': {}},
