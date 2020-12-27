@@ -4,6 +4,7 @@ from django.shortcuts import render
 from django.utils.safestring import SafeString
 from django.urls import reverse
 from .models import Semester
+from scheduler.settings import GAPI_CLIENT_ID, GAPI_API_KEY, TIME_ZONE
 
 
 def startpage(req):
@@ -43,8 +44,11 @@ def app(req):
         'name': semester_name,
         'code': semester_code,
         'update_dt': semester_update_dt,
+        'time_zone': TIME_ZONE,
         'data': SafeString(semester_data),
         'color_scheme': color_scheme,
+        'gapi_client_id': GAPI_CLIENT_ID,
+        'gapi_api_key': GAPI_API_KEY,
     }
 
     return render(req, 'app/scheduler.html', context)

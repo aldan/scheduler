@@ -7,7 +7,10 @@
             semester_data = {{ data|safe }},
             semester_name = '{{ name }}',
             semester_code = '{{ code }}',
-            semester_last_update_dt = '{{ update_dt|timesince }}';
+            semester_last_update_dt = '{{ update_dt|timesince }}',
+            time_zone = '{{ time_zone }}',
+            CLIENT_ID = '{{ gapi_client_id }}',
+            API_KEY = '{{ gapi_api_key }}';
 
         let scheduleList = [
                 {'id': '1', 'name': 'Schedule 1', 'data': {}},
@@ -49,9 +52,40 @@
 {% endblock %}
 
 {% block content %}
-    <div class="overlay" id="print-overlay">
-        <div class="overlay-header">Print mode</div>
-        <div class="overlay-content">Click anywhere to disable</div>
+    <div class="overlay" id="overlay">
+        <div class="overlay-header" id="overlay-header"></div>
+        <div class="overlay-message" id="overlay-message"></div>
+    </div>
+    <div class="modal" id="gcal-export-modal">
+        <div class="modal-header">
+            <span class="modal-header-title">Export to Google Calendar</span>
+            <span class="modal-header-close" onclick="$('.modal, .overlay').removeClass('active')">&#10006;</span>
+        </div>
+        <div class="modal-content">
+            <form id="export-params">
+                <label class="export-param pure-material-checkbox">
+                    <input type="checkbox" onclick="$('#export-param-cal-name').toggle()">
+                    <span>Add events to a separate calendar</span>
+                </label>
+                <label class="export-param" id="export-param-cal-name" style="display: none">
+                    <span style="font-size: 0.8em">Calendar name:</span>
+                    <input type="text" id="export-param-cal-name-input" value="{{ name }}">
+                </label>
+                <label class="export-param pure-material-checkbox">
+                    <input type="checkbox" onclick="$('#export-param-notify-time').toggle()">
+                    <span>Add notification</span>
+                </label>
+                <label class="export-param" id="export-param-notify-time" style="display: none">
+                    <span style="font-size: 0.8em">Notify</span>
+                    <input type="number" id="export-param-notify-time-input" value="10">
+                    <span style="font-size: 0.8em">minutes before</span>
+                </label>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button id="gcal-export-auth">Export</button>
+            <button id="gcal-export-signout">Clear sign in data</button>
+        </div>
     </div>
     <header class="header">
         <div class="header-title-container">
@@ -62,7 +96,9 @@
             <div class="header-message" id="header-message"></div>
         </div>
         <div class="header-menu">
-            <div class="header-menu-item"><a href="https://github.com/aldan/scheduler" target="_blank">Github Repo</a></div>
+            <div class="header-menu-item">
+                <a href="https://github.com/aldan/scheduler" target="_blank">Github Repo</a>
+            </div>
             <div class="header-menu-item" onclick="window.print()">Print</div>
             <div class="header-menu-item"><span id="theme-toggle">Dark theme</span></div>
         </div>
@@ -466,7 +502,10 @@
     </div>
 {% endblock %}
 
-{#{% block body_script %}#}
-{#    <script type="text/javascript">#}
-{#    </script>#}
-{#{% endblock %}#}
+{% block body_script %}
+    <script type="text/javascript" src="{% static 'app/gcal_api.js' %}"></script>
+    <script async defer src="https://apis.google.com/js/api.js"
+            onload="this.onload=function(){};handleClientLoad()"
+            onreadystatechange="if (this.readyState === 'complete') this.onload()">
+    </script>
+{% endblock %}

@@ -117,6 +117,10 @@ CRON_CLASSES = [
 
 DJANGO_CRON_DELETE_LOGS_OLDER_THAN = config('DJANGO_CRON_DELETE_LOGS_OLDER_THAN', default=7, cast=int)
 
+# Google API credentials
+GAPI_CLIENT_ID = config('GAPI_CLIENT_ID')
+GAPI_API_KEY = config('GAPI_API_KEY')
+
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 

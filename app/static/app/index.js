@@ -122,37 +122,37 @@ function addEventToView(section, selected_section, course_data, color) { /* ui: 
 
     const section_data = course_data.sections[section].filter((sec) => {
         return sec.code === selected_section;
-    })[0];
+    });
 
-    const time_start = section_data.start,
-        time_end = section_data.end,
-        time_string = `${minutesTo24String(time_start)} - ${minutesTo24String(time_end)}`,
-        slot = Math.trunc(time_start / 30),
-        slot_len = (time_end - time_start) / 30,
-        color_class = (color) ? `background-${color}` : '';
+    for (const instance of section_data) {
+        const time_start = instance.start,
+            time_end = instance.end,
+            time_string = `${minutesTo24String(time_start)} - ${minutesTo24String(time_end)}`,
+            slot = Math.trunc(time_start / 30),
+            slot_len = (time_end - time_start) / 30,
+            color_class = (color) ? `background-${color}` : '';
 
-    // case: online
-    if (!section_data.start || (section_data.days[5] && slot >= 46)) {/* no time or day is sat & time >= 23:00 */
-        const online_course_list = $(`.timetable-online-course-list`);
-        online_course_list.css('display', 'flex');
-        online_course_list.append(`
+        // case: online
+        if (!instance.start || (instance.days[5] && slot >= 46)) {/* no time or day is sat & time >= 23:00 */
+            const online_course_list = $(`.timetable-online-course-list`);
+            online_course_list.css('display', 'flex');
+            online_course_list.append(`
             <div class="online-event-card ${color_class}">
                 <b>${course_data.abbr}: ${selected_section}</b><br>
                 <span style="color: rgba(255,255,255,.8)">Online</span>
             </div>
         `);
-        return;
-    }
-
-    // case: offline
-    for (let day = 0; day < 7; day++) {
-        if (section_data.days[day]) {
-            $(`.timetable-box table tr:eq(${slot - 13}) td:eq(${day + 1})`).append(`
+        } else { /* case: offline */
+            for (let day = 0; day < 7; day++) {
+                if (instance.days[day]) {
+                    $(`.timetable-box table tr:eq(${slot - 13}) td:eq(${day + 1})`).append(`
                 <div class="event ${color_class}" style="height: ${100 * slot_len}%">
                     <b>${course_data.abbr}: ${selected_section}</b><br>
                     <span style="color: rgba(255,255,255,.8)">${time_string}</span>
                 </div>
             `);
+                }
+            }
         }
     }
 }
@@ -273,8 +273,10 @@ function updateSelectXPosition(element) { /* ui fix: prevents selectX-options of
             const selected_section = sections[section],
                 section_data = course_data.sections[section].filter((sec) => {
                     return sec.code === selected_section;
-                })[0];
-            timings[cur++] = [section_data.start, section_data.end, section_data.days];
+                });
+            for (const instance of section_data) {
+                timings[cur++] = [instance.start, instance.end, instance.days];
+            }
         }
     }
 
@@ -531,10 +533,23 @@ $(document).ready(() => {
         });
     }
 
-    { /* show update message */
+    { /* show sync message */
         const header_message = $('#header-message');
         header_message.html(`Last synced with registrar: ${semester_last_update_dt} ago`);
         header_message.addClass('info');
+    }
+
+    { /* set up onclick event for overlay */
+        const on_click = function () {
+            if ($('#overlay').hasClass('forced')) {
+                return;
+            }
+            $('.modal, .overlay').removeClass('active');
+            $('#overlay-header').html('');
+            $('#overlay-message').html('');
+        }
+
+        $('#overlay, #overlay-header, #overlay-message').click(on_click);
     }
 
     { /* shadow on scroll (for timetable header) */
