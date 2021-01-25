@@ -189,10 +189,11 @@ function generate_recurring_event(instance, course_data, params) {
         )),
         end = new Date(Date.parse(
             `${course_data.from.replace(/-/g, ' ')} ${Math.trunc(instance.end / 60)}:${instance.end % 60} UTC+6`
-        )),
-        last_instance_end = new Date(Date.parse(
-            `${course_data.to.replace(/-/g, ' ')} ${Math.trunc(instance.end / 60)}:${instance.end % 60} UTC+6`
         ));
+    let last_instance_end = new Date(Date.parse(
+        `${course_data.to.replace(/-/g, ' ')} ${Math.trunc(instance.end / 60)}:${instance.end % 60} UTC+6`
+    ));
+    last_instance_end.setDate(last_instance_end.getDate() + 1); /* recurrence doesnt include the last day smh */
 
     let reminders = [];
     if (params.add_notifications) {
