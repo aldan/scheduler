@@ -172,6 +172,8 @@ function addCourseView(id) { /* ui: add course to the list on sidebar */
                     <div class="course-color-select-palette-option-tick">&#10003;</div></div>`;
         }
 
+        html += `<div class="course-color-select-palette-option" style="visibility: hidden">pseudo</div>` // flex is weird
+
         return html;
     }
 

@@ -362,7 +362,7 @@ body {
     /*background: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0) 100%);*/
     background: rgba(0, 0, 0, 0.5);
     opacity: 0;
-    transition: all 0.5s;
+    transition: opacity 0.25s;
 }
 
 .overlay.active {
@@ -396,19 +396,25 @@ body {
 
     width: fit-content;
     max-width: 90%;
-    height: 0;
+    /*height: 0;*/
     padding: 1em;
 
     background: var(--background);
     border-radius: 0.5em;
-    opacity: 0;
-    transition: all 0.5s;
+    /*opacity: 0;*/
+    /*transition: opacity 0.25s;*/
 }
 
 .modal.active {
     height: fit-content;
-    max-height: 60%;
+    /*max-height: 60%;*/
     opacity: 1;
+    transition: opacity 0.25s;
+}
+
+.modal:not(.active) {
+    height: 0;
+    opacity: 0;
 }
 
 .modal-header {
