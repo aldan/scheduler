@@ -18,6 +18,12 @@ class GetCourseList(CronJobBase):
         logging.info(f'Cron started: app.get_course_list. Timestamp: {start_time}\n')
 
         cur_semester = pcc.get_semester()
+        db_semester = Semester.objects.last()
+        db_semester_code = getattr(db_semester, 'semester_code', None)
+        if db_semester_code and int(db_semester_code) > int(cur_semester['ID']):    # temp fix, todo resolve
+            cur_semester['ID'] = db_semester_code
+            cur_semester['NAME'] = getattr(db_semester, 'semester_name')
+
         if cur_semester is None:
             logging.error('Aborted: cur_semester is None')
             return
