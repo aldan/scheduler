@@ -4,8 +4,8 @@ from .models import Semester
 
 import logging
 import json
-import public_course_catalog as pcc
-import pdfscraper
+from nuregi import api
+from nuregi.scraper.pdf import get_schedule
 
 
 class GetCourseList(CronJobBase):
@@ -17,7 +17,7 @@ class GetCourseList(CronJobBase):
         start_time = timezone.now()
         logging.info(f'Cron started: app.get_course_list. Timestamp: {start_time}\n')
 
-        cur_semester = pcc.get_semester()
+        cur_semester = api.get_semester()[-1]
         db_semester = Semester.objects.last()
         db_semester_code = getattr(db_semester, 'semester_code', None)
         if db_semester_code and int(db_semester_code) > int(cur_semester['ID']):    # temp fix, todo resolve
@@ -31,10 +31,11 @@ class GetCourseList(CronJobBase):
         logging.info(f'Current semester: {cur_semester["NAME"]}, id: {cur_semester["ID"]}')
 
         try:
-            cur_semester_data = pdfscraper.get_csbs_as_json_table(
-                semester_code=cur_semester['ID'],
-                academic_level_code=1,
-                verify_params=False
+            cur_semester_data = get_schedule(
+                data_format="table",
+                semester=cur_semester['ID'],
+                academic_level=1,
+                timeout=60,
             )
         except Exception as err:
             logging.error('Aborted: pdfscraper.get_csbs_as_json_columns() failed')

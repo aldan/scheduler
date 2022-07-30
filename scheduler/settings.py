@@ -108,6 +108,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
 # Cron configuration
 # https://django-cron.readthedocs.io/en/latest/configuration.html
 
