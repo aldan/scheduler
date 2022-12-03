@@ -100,6 +100,7 @@ def rearrange_csbs_data(data):
             id_dict[item[0]] = cur
             cur += 1
 
+        item[1] = item[1].replace(" ", "")
         section_type = item[1]
         section_days = [0, 0, 0, 0, 0, 0, 0]
         section_start = None
