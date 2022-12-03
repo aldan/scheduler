@@ -75,14 +75,14 @@ def rearrange_csbs_data(data):
     data = json.loads(data)
     data = data['data']
     del data[0]
+    data = [list(item.values()) for item in data]
 
     course_list, id_dict = [], {}
     cur = 0
 
     for index, item in enumerate(data):
-        item = list(item.values())
         if not item[0]:
-            prev = list(data[index - 1].values())
+            prev = data[index - 1]
             for i in range(len(item)):
                 if not item[i]:
                     item[i] = prev[i]
