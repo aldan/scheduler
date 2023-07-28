@@ -4,6 +4,7 @@ from .models import Semester
 
 import logging
 import json
+import os
 from nuregi import api
 from nuregi.scraper.pdf import get_schedule
 
