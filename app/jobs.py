@@ -17,12 +17,8 @@ class GetCourseList(CronJobBase):
         start_time = timezone.now()
         logging.info(f'Cron started: app.get_course_list. Timestamp: {start_time}\n')
 
-        cur_semester = api.get_semester()[-1]
-        db_semester = Semester.objects.last()
-        db_semester_code = getattr(db_semester, 'semester_code', None)
-        if db_semester_code and int(db_semester_code) > int(cur_semester['ID']):    # temp fix, todo resolve
-            cur_semester['ID'] = db_semester_code
-            cur_semester['NAME'] = getattr(db_semester, 'semester_name')
+        overwrite_sem = os.getenv("OVERWRITE_SEMESTER_ID")
+        cur_semester = api.get_semester(overwrite_sem) if overwrite_sem else api.get_semester()[-1]
 
         if cur_semester is None:
             logging.error('Aborted: cur_semester is None')
