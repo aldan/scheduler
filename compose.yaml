@@ -1,0 +1,32 @@
+name: keste
+services:
+  web:
+    container_name: web
+    build: .
+    working_dir: /app/
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app/
+      - static_volume:/app/var/static/
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+  db:
+    container_name: db
+    image: postgres:14
+    restart: on-failure
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - .env
+    command:
+      - -p ${POSTGRES_PORT}
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    expose:
+      - ${POSTGRES_PORT}
+
+volumes:
+  postgres_data:
+  static_volume:
