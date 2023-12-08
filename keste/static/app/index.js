@@ -167,7 +167,7 @@ function addCourseView(id) { /* ui: add course to the list on sidebar */
         let html = ``;
 
         for (const color in named_color_set) {
-            html += `<div class="course-color-select-palette-option background-${color}" 
+            html += `<div class="course-color-select-palette-option background-${color}"
                           onclick="updateCourseColor('${id}', '${color}', this)">
                     <div class="course-color-select-palette-option-tick">&#10003;</div></div>`;
         }
@@ -185,7 +185,7 @@ function addCourseView(id) { /* ui: add course to the list on sidebar */
             </div>
             <div class="course-view-content">
                 <div class="course-view-color">
-                    <div class="course-color-select" id="course-color-select-${id}" 
+                    <div class="course-color-select" id="course-color-select-${id}"
                     onmouseover="updateColorPalettePosition(this)">
                         <div class="course-color-select-palette">
                             ${generateColorSetHTML(id)}
@@ -204,11 +204,11 @@ function addCourseView(id) { /* ui: add course to the list on sidebar */
 
         course_view_content.append(`
             <div class="course-section">
-                <select class="course-section-select" id="course-section-select-${id}-${section_type}" 
+                <select class="course-section-select" id="course-section-select-${id}-${section_type}"
                 data-course="${id}" data-section="${section_type}" onchange="updateCourseSection(this)">
                     <option value="-1">Select section</option>
                 </select>
-                <div class="course-section-selectX" id="course-section-selectX-${id}-${section_type}" 
+                <div class="course-section-selectX" id="course-section-selectX-${id}-${section_type}"
                 onmouseover="updateSelectXPosition(this)">
                     <div class="course-section-selectX-selector">${section_type}</div>
                     <div class="course-section-selectX-options"></div>
@@ -221,9 +221,9 @@ function addCourseView(id) { /* ui: add course to the list on sidebar */
                 str_room = (slot.room) ? slot.room : `Distant`,
                 str_faculty = (slot.faculty) ? slot.faculty : `No instructors specified`;
             $(`#course-section-selectX-${id}-${section_type} .course-section-selectX-options`).append(`
-                <div class="course-section-selectX-option" 
+                <div class="course-section-selectX-option"
                 id="course-section-selectX-option-${id}-${section_type}-${slot.code}"
-                onclick="updateCourseSectionCC('${id}','${section_type}','${slot.code}', this)" 
+                onclick="updateCourseSectionCC('${id}','${section_type}','${slot.code}', this)"
                 data-days="${slot.days}" data-starttime="${slot.start}" data-endtime="${slot.end}">
                     <div class="course-section-selectX-option-top">
                         <b class="course-section-selectX-option-name">${slot.code}</b>

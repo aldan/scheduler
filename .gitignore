@@ -7,7 +7,7 @@
 .idea
 __pycache__
 MANIFEST
-app/migrations
+keste/migrations
 build/
 dist/
 docs/_build/
