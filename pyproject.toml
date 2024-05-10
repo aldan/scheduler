@@ -6,7 +6,7 @@ authors = ["aldan <gitaldan@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.11.0"
 django = "^5.0"
 nuregi = "0.3.0"
 gunicorn = "^21.2.0"
