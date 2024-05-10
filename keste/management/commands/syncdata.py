@@ -22,8 +22,10 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         scraper = nuregi.Scraper(timeout=30, ignore_ssl=True)
         current_semester = scraper.get_last_published_semester()
+        print(current_semester)
+        current_semester["NAME"] = "Summer 2024"  # gonna fix soon frfr
         semester_data = scraper.get_course_schedule(
-            semester=current_semester["ID"], academic_level=2
+            semester=current_semester["ID"], academic_level=1
         )
         semester_data = rearrange_csbs_data(semester_data)
 
@@ -46,7 +48,7 @@ def rearrange_csbs_data(data):
     data = json.loads(data)
     data = data["data"]
     del data[0]
-    data = [list(item.values()) for item in data]
+    data = [list(item.values())[2:] for item in data]
 
     course_list, id_dict = [], {}
     cur = 0
