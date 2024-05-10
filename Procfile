@@ -1,2 +1,2 @@
-release: python manage.py runcrons
+release: python manage.py syncdata
 web: gunicorn scheduler.wsgi --log-file -
