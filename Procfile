@@ -1,2 +1,2 @@
 release: python manage.py syncdata
-web: gunicorn scheduler.wsgi --log-file -
+web: gunicorn config.wsgi --log-file -
