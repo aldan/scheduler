@@ -23,7 +23,7 @@ class Command(BaseCommand):
         scraper = nuregi.Scraper(timeout=30, ignore_ssl=True)
         current_semester = scraper.get_last_published_semester()
         print(current_semester)
-        current_semester["NAME"] = "Fall 2024"  # gonna fix soon frfr x2
+        current_semester["NAME"] = "Spring 2025"  # gonna fix soon frfr x3
         semester_data = scraper.get_course_schedule(
             semester=current_semester["ID"], academic_level=1
         )
